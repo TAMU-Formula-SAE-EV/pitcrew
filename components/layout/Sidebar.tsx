@@ -27,12 +27,6 @@ export default function Sidebar() {
             label: "Dashboard",
         },
         {
-            href: "/dashboard/notifications",
-            icon: Mail,
-            activeIcon: MailActive,
-            label: "Notifications",
-        },
-        {
             href: "/dashboard/calendar",
             icon: Calendar,
             activeIcon: CalendarActive,
