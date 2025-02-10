@@ -1,0 +1,138 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Applicant {
+  id          String   @id @default(cuid())
+  name        String
+  email       String   @unique
+  phone       String
+  major       String
+  year        Int      // 1-4 for year
+  semester    Int      // 1 or 2 for semester
+  status      Status   @default(APPLIED)
+  override    Boolean  @default(false)
+  starred     Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  applications Application[]
+  interviews   Interview[]
+  subteams     ApplicantSubteam[]
+}
+
+model Application {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // General questions/answers stored as JSON
+  generalResponses Json
+
+  // Resume URL in Azure Blob Storage
+  resumeUrl String?
+
+  // Relations
+  applicant    Applicant @relation(fields: [applicantId], references: [id])
+  applicantId  String
+  subteamApps  SubteamApplication[]
+}
+
+model SubteamApplication {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Subteam specific responses
+  responses Json
+  
+  // Optional files URLs (Azure Blob)
+  fileUrls String[]
+
+  // Relations
+  application   Application @relation(fields: [applicationId], references: [id])
+  applicationId String
+  subteam       Subteam     @relation(fields: [subteamId], references: [id])
+  subteamId     String
+}
+
+model Subteam {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+
+  // Relations
+  applications    SubteamApplication[]
+  admins          Admin[]
+  applicants      ApplicantSubteam[]
+}
+
+// Junction table for Applicant-Subteam (allows tracking preference order)
+model ApplicantSubteam {
+  applicant     Applicant @relation(fields: [applicantId], references: [id])
+  applicantId   String
+  subteam       Subteam   @relation(fields: [subteamId], references: [id])
+  subteamId     String
+  preferenceOrder Int      // 1 or 2 for first/second choice
+
+  @@id([applicantId, subteamId])
+}
+
+model Interview {
+  id        String   @id @default(cuid())
+  day       DateTime
+  location  String
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  applicant    Applicant @relation(fields: [applicantId], references: [id])
+  applicantId  String
+  admins       InterviewAdmin[]
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  phone     String?
+  role      AdminRole @default(MEMBER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  subteams        Subteam[]
+  interviews      InterviewAdmin[]
+}
+
+// Junction table for Interview-Admin
+model InterviewAdmin {
+  interview   Interview @relation(fields: [interviewId], references: [id])
+  interviewId String
+  admin       Admin     @relation(fields: [adminId], references: [id])
+  adminId     String
+
+  @@id([interviewId, adminId])
+}
+
+enum Status {
+  APPLIED
+  INTERVIEWING
+  OFFER
+  REJECTED
+  WAITLISTED
+  WITHDRAWN
+}
+
+enum AdminRole {
+  ADMIN
+  LEAD
+  MEMBER
+}

@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# pitcrew
 
-## Getting Started
+for formula electric recruiting. lets you manage the entire recruiting pipeline from applications to team placement.
 
-First, run the development server:
+## tech
+- next.js w app router
+- postgresql
+- prisma
+- azure blob storage
+- framer motion
 
+## local setup
+psql setup (mac):
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+brew install postgresql
+brew services start postgresql
+
+# create db and user
+psql postgres
+CREATE DATABASE pitcrew_db OWNER your_username;
+GRANT ALL PRIVILEGES ON DATABASE pitcrew_db TO your_username;
+ALTER USER your_username CREATEDB;
+\q
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## project setup
+```
+npm install
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+# setup env
+# edit DATABASE_URL in .env to match your psql setup
+DATABASE_URL="postgresql://YOURPSQLACCOUNTUSERNAME:YOURPSQLACCOUNTPASSWORD@localhost:PORTNUMBER/pitcrew_db/mydb?schema=public"
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# setup db
+npx prisma generate
+npx prisma db push
+npx prisma db seed```
+```
 
-## Learn More
+## structure
+```
+pitcrew/
+├── app/                      # next.js app router
+│   ├── (dashboard)          # (should be protected) dashboard routes
+│   ├── (public)             # public routes (apply + landing)
+│   ├── layout.tsx           # root layout
+│   └── page.tsx             # landing page
+├── components/              # react components
+│   ├── dashboard/           # dashboard specific components
+│   ├── layout/             # layout components (sidebar, etc)
+│   └── shared/             # shared components
+├── constants/              # shared constants
+│   └── questions.ts       # application questions
+├── public/
+│   └── icons/            # svg icons
+└── prisma/               # database stuff
+    ├── schema.prisma    # db schema
+    └── seed.ts         # seeder
+```
 
-To learn more about Next.js, take a look at the following resources:
+## development
+```
+npm run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+we use css modules for styling, no tailwind.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+built by tamu formula electric software subteam 2024-2025.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

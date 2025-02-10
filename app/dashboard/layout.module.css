@@ -1,0 +1,10 @@
+.layout {
+    min-height: 100vh;
+    display: flex;
+}
+
+.main {
+    flex: 1;
+    margin-left: 66px;
+    min-height: 100vh;
+}
