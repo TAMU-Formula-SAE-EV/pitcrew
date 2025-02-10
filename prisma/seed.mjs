@@ -1,9 +1,9 @@
-import { PrismaClient, Status, AdminRole } from '@prisma/client';
+import { PrismaClient, Status, AdminRole, Subteams } from '@prisma/client';
 
 const prisma = new PrismaClient()
 
 async function main() {
-    // Clean the database
+    // clean the database
     await prisma.interviewAdmin.deleteMany()
     await prisma.interview.deleteMany()
     await prisma.subteamApplication.deleteMany()
@@ -13,22 +13,22 @@ async function main() {
     await prisma.admin.deleteMany()
     await prisma.subteam.deleteMany()
 
-    // Create subteams
+    // create subteams
     const softwareTeam = await prisma.subteam.create({
         data: {
-            name: 'Software',
+            name: Subteams.SOFTWARE,
             description: 'Vehicle software and embedded systems'
         }
     })
 
     const electricalTeam = await prisma.subteam.create({
         data: {
-            name: 'Electrical',
+            name: Subteams.ELECTRONICS,
             description: 'Power systems and electronics'
         }
     })
 
-    // Create an admin
+    // create an admin
     const admin = await prisma.admin.create({
         data: {
             name: 'John Doe',
@@ -41,7 +41,7 @@ async function main() {
         }
     })
 
-    // Create applicants with their applications
+    // create applicants with their applications
     const applicant1 = await prisma.applicant.create({
         data: {
             name: 'Alice Johnson',

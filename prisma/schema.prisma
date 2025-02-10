@@ -21,7 +21,7 @@ model Applicant {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  // Relations
+  // relations
   applications Application[]
   interviews   Interview[]
   subteams     ApplicantSubteam[]
@@ -32,13 +32,13 @@ model Application {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // General questions/answers stored as JSON
+  // general questions/answers stored as JSON
   generalResponses Json
 
-  // Resume URL in Azure Blob Storage
+  // resume URL in Azure Blob Storage
   resumeUrl String?
 
-  // Relations
+  // relations
   applicant    Applicant @relation(fields: [applicantId], references: [id])
   applicantId  String
   subteamApps  SubteamApplication[]
@@ -49,13 +49,13 @@ model SubteamApplication {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Subteam specific responses
+  // subteam specific responses
   responses Json
   
-  // Optional files URLs (Azure Blob)
+  // files URLs (azure blob)
   fileUrls String[]
 
-  // Relations
+  // relations
   application   Application @relation(fields: [applicationId], references: [id])
   applicationId String
   subteam       Subteam     @relation(fields: [subteamId], references: [id])
@@ -64,16 +64,16 @@ model SubteamApplication {
 
 model Subteam {
   id          String   @id @default(cuid())
-  name        String   @unique
+  name        Subteams @unique
   description String?
 
-  // Relations
+  // relations
   applications    SubteamApplication[]
   admins          Admin[]
   applicants      ApplicantSubteam[]
 }
 
-// Junction table for Applicant-Subteam (allows tracking preference order)
+// junction table for applicant-subteam (allows tracking preference order)
 model ApplicantSubteam {
   applicant     Applicant @relation(fields: [applicantId], references: [id])
   applicantId   String
@@ -92,7 +92,7 @@ model Interview {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relations
+  // relations
   applicant    Applicant @relation(fields: [applicantId], references: [id])
   applicantId  String
   admins       InterviewAdmin[]
@@ -107,7 +107,7 @@ model Admin {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relations
+  // relations
   subteams        Subteam[]
   interviews      InterviewAdmin[]
 }
@@ -135,4 +135,20 @@ enum AdminRole {
   ADMIN
   LEAD
   MEMBER
+}
+
+enum Subteams {
+  SOFTWARE
+  DISTRIBUTED_BATTERY_MANAGEMENT
+  CHASSIS
+  ELECTRONICS
+  OPERATIONS
+  SPONSOR_RELATIONS
+  MARKETING
+  BUSINESS
+  POWERTRAIN
+  BATTERY
+  AERODYNAMICS
+  SUSPENSION
+  FINANCE
 }
