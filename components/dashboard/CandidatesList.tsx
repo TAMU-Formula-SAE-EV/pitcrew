@@ -9,7 +9,7 @@ interface CandidatesListProps {
 export function CandidatesList({ candidates }: CandidatesListProps) {
     return (
         <div className={styles.grid}>
-            {candidates.map((candidate) => (
+            {Array.isArray(candidates) && candidates.map((candidate) => (
                 <CandidateCard key={candidate.id} candidate={candidate} />
             ))}
         </div>
