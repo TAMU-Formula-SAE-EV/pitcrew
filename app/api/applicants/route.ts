@@ -27,22 +27,23 @@ export async function GET(request: NextRequest) {
           } : {}
         ]
       },
-      include: {
-        applications: {
-          include: {
-            subteamApps: {
-              include: {
-                subteam: true
+      select: {
+        id: true,
+        name: true,
+        year: true,
+        email: true,
+        starred: true,
+        appliedAt: true,
+        subteams: {
+          select: {
+            preferenceOrder: true,
+            subteam: {
+              select: {
+                name: true
               }
             }
           }
-        },
-        subteams: {
-          include: {
-            subteam: true
-          }
-        },
-        interviews: true
+        }
       },
       orderBy: {
         createdAt: 'desc'
@@ -50,7 +51,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json(applicants);
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch applicants' }, { status: 500 });
   }
 }

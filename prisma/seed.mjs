@@ -42,13 +42,13 @@ async function main() {
     })
 
     // create applicants with their applications
-    const applicant1 = await prisma.applicant.create({
+    await prisma.applicant.create({
         data: {
             name: 'Alice Johnson',
             email: 'alice@example.com',
             phone: '555-0123',
             major: 'Computer Science',
-            year: 2,
+            year: 2026,
             semester: 1,
             status: Status.APPLIED,
             starred: true,
@@ -82,13 +82,13 @@ async function main() {
         }
     })
 
-    const applicant2 = await prisma.applicant.create({
+    await prisma.applicant.create({
         data: {
             name: 'Bob Smith',
             email: 'bob@example.com',
             phone: '555-0124',
             major: 'Electrical Engineering',
-            year: 3,
+            year: 2027,
             semester: 2,
             status: Status.INTERVIEWING,
             applications: {
@@ -142,6 +142,55 @@ async function main() {
                 }
                 }
             }
+        }
+    })
+
+    await prisma.applicant.create({
+        data: {
+            name: 'John Manning',
+            email: 'john@example.com',
+            phone: '555-0124-123',
+            major: 'Mechanical Engineering',
+            year: 2026,
+            semester: 1,
+            status: Status.APPLIED,
+            applications: {
+                create: {
+                    generalResponses: {
+                        whyJoin: 'Want to gain hands-on experience',
+                        experience: 'Internship at Tesla'
+                    },
+                    subteamApps: {
+                        create: [
+                        {
+                            responses: {
+                                technicalSkills: 'PCB Design, MATLAB',
+                                projectExperience: 'Built a solar-powered charger'
+                            },
+                            subteam: {
+                                connect: { id: electricalTeam.id }
+                            }
+                        }
+                        ]
+                    }
+                }
+            },
+            subteams: {
+                create: [
+                {
+                    subteam: {
+                    connect: { id: softwareTeam.id  }
+                    },
+                    preferenceOrder: 1
+                },
+                {
+                    subteam: {
+                    connect: { id: electricalTeam.id }
+                    },
+                    preferenceOrder: 2
+                }
+            ]
+            },
         }
     })
 

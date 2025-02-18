@@ -1,8 +1,0 @@
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1rem;
-    background-color: #F2F2F2;
-    padding: 1rem;
-    border-radius: 0.5rem;
-}

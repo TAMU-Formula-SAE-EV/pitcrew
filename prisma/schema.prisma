@@ -8,18 +8,20 @@ datasource db {
 }
 
 model Applicant {
-  id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  phone     String?
-  major     String?
-  year      Int? // 1-4 for year
-  semester  Int? // 1 or 2 for semester
-  status    Status   @default(REGISTRATION)
-  override  Boolean  @default(false)
-  starred   Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String   @id @default(cuid())
+  name          String
+  email         String   @unique
+  phone         String?
+  major         String?
+  year          Int? // 1-4 for year
+  semester      Int? // 1 or 2 for semester
+  status        Status   @default(REGISTRATION)
+  override      Boolean  @default(false)
+  starred       Boolean  @default(false)
+  approvalCount Int      @default(0)
+  appliedAt     DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   // relations
   applications Application[]
