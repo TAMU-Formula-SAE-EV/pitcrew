@@ -1,53 +1,41 @@
 'use client';
-import { Suspense } from 'react';
 import { useState } from 'react';
-import useSWR from 'swr';
-import { Status, Subteams } from '@prisma/client';
-import { FlowTabs } from '@/components/dashboard/FlowTabs';
-import { CandidatesList } from '@/components/dashboard/CandidatesList';
 import styles from './dashboard.module.css';
+import Timeline from '@/components/dashboard/Timeline';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { StatusType } from '@/types';
+import { ApplicantSection } from '@/components/dashboard/ApplicantSection';
 
-const fetcher = (url: string) => fetch(url).then(r => r.json());
+const queryClient = new QueryClient();
 
-function CandidatesSection({ activeStatus, selectedSubteams }: { 
-    activeStatus: Status; 
-    selectedSubteams: Subteams[] 
-}) {
-    const { data: applicants = [] } = useSWR(
-        `/api/applicants?status=${activeStatus}${
-            selectedSubteams.length ? '&' + selectedSubteams.map(t => `subteam=${t}`).join('&') : ''
-        }`,
-        fetcher,
-        { 
-            refreshInterval: 30000,
-            revalidateOnFocus: false,
-            fallbackData: [],
-            keepPreviousData: true
-        }
-    );
-
-    return <CandidatesList candidates={applicants} />;
+export default function DashboardWrapper() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Dashboard />
+    </QueryClientProvider>
+  );
 }
 
-export default function Dashboard() {
-    const [activeStatus, setActiveStatus] = useState<Status>(Status.APPLIED);
-    const [selectedSubteams, setSelectedSubteams] = useState<Subteams[]>([]);
+function Dashboard() {
+  const [activeStatus, setActiveStatus] = useState<StatusType>('Applied');
 
-    return (
-        <main className={styles.main}>
-            <div className={styles.header}>
-                <h1 className={styles.title}>LeBron James</h1>
-                <p className={styles.subtitle}>View and manage all candidates.</p>
-            </div>
+  const handleStatusChange = (status: StatusType) => {
+    setActiveStatus(status);
+  };
 
-            <FlowTabs activeStatus={activeStatus} onStatusChange={setActiveStatus} />
+  return (
+    <main className={styles.main}>
+      <div className={styles.header}>
+        <h1 className={styles.title}>LeBron James</h1>
+        <p className={styles.subtitle}>View and manage all candidates.</p>
 
-            <div className={styles.content}>
-                <CandidatesSection 
-                    activeStatus={activeStatus} 
-                    selectedSubteams={selectedSubteams} 
-                />
-            </div>
-        </main>
-    );
+        <Timeline 
+          activeTab={activeStatus} 
+          onTabChange={handleStatusChange}
+        />
+      </div>
+
+      <ApplicantSection status={activeStatus} />
+    </main>
+  );
 }

@@ -1,0 +1,32 @@
+.container {
+    position: relative;
+}
+
+.tabList {
+    display: flex;
+    gap: 1rem;
+}
+
+.tab {
+    padding: .75rem 1rem;
+    position: relative;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #767676;
+    font-family: 'Montserrat', sans-serif;
+    font-size: .9rem;
+}
+
+.active {
+    color: #2C6E49;
+}
+
+.underline {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #2C6E49;
+}

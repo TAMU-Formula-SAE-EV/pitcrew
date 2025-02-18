@@ -1,0 +1,22 @@
+.container {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    height: 95%;
+    width: 73%;
+    overflow-y: scroll;
+}
+
+.emptyState, .loadingState, .errorState {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #767676;
+    font-size: 16px;
+}
+
+.details {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+}

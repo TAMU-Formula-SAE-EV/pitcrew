@@ -9,8 +9,8 @@ export default async function DashboardLayout({
     // TODO: add authentication check here later
     return (
         <div className={styles.layout}>
-            <main className={styles.main}>{children}</main>
             <Sidebar />
+            <main className={styles.main}>{children}</main>
         </div>
     );
 }
