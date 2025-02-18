@@ -10,7 +10,7 @@ export default function Calendar() {
     const router = useRouter();
 
     useEffect(() => {
-        if (status !== 'loading' && !session) {
+        if (status !== 'loading' && !session || !session?.user?.admin) {
             router.push('/');
         }
     }, [session, status, router]);

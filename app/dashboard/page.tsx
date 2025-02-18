@@ -38,7 +38,7 @@ export default function Dashboard() {
     const router = useRouter();
 
     useEffect(() => {
-        if (status !== 'loading' && !session) {
+        if (status !== 'loading' && !session || !session?.user?.admin) {
             router.push('/');
         }
     }, [session, status, router]);
