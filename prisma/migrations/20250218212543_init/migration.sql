@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "Status" AS ENUM ('APPLIED', 'INTERVIEWING', 'OFFER', 'REJECTED', 'WAITLISTED', 'WITHDRAWN');
+CREATE TYPE "Status" AS ENUM ('REGISTRATION', 'APPLIED', 'INTERVIEWING', 'OFFER', 'REJECTED', 'WAITLISTED', 'WITHDRAWN');
 
 -- CreateEnum
 CREATE TYPE "AdminRole" AS ENUM ('ADMIN', 'LEAD', 'MEMBER');
@@ -12,13 +12,15 @@ CREATE TABLE "Applicant" (
     "id" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "email" TEXT NOT NULL,
-    "phone" TEXT NOT NULL,
-    "major" TEXT NOT NULL,
-    "year" INTEGER NOT NULL,
-    "semester" INTEGER NOT NULL,
-    "status" "Status" NOT NULL DEFAULT 'APPLIED',
+    "phone" TEXT,
+    "major" TEXT,
+    "year" INTEGER,
+    "semester" INTEGER,
+    "status" "Status" NOT NULL DEFAULT 'REGISTRATION',
     "override" BOOLEAN NOT NULL DEFAULT false,
     "starred" BOOLEAN NOT NULL DEFAULT false,
+    "approvalCount" INTEGER NOT NULL DEFAULT 0,
+    "appliedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
