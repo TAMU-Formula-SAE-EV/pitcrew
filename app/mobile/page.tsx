@@ -50,17 +50,22 @@ export default function Mobile() {
 
     /* validation funcs */
     const validateName = (name: string) => {
-        if (!/^[a-zA-Z\s]*$/.test(name)) return 1;
+        // only uppercase, lowercase, and spaces
+        if (!/^[a-zA-Z\s]*$/.test(name) && name.length > 0) return 1;
         return 0;
     };
 
     const validatePhone = (phone: string) => {
+        // remove non-digits
         const digitsOnly = phone.replace(/\D/g, '');
         return digitsOnly.length === 10 ? 0 : 1;
     };
 
     const validateEmail = (email: string) => {
+        // pattern for emails -> 1 @, then 1 .
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 1;
+        // check for tamu email
+        // if (!email.includes("@tamu.edu")) return 1;
         return 0;
     };
 
@@ -112,38 +117,48 @@ export default function Mobile() {
             return;
         } 
 
+        let updatedPhone = formData.phone.replace(/\D/g, '') 
+        updatedPhone = updatedPhone.slice(0, 3) + "-" + updatedPhone.slice(3, 6) + "-" + updatedPhone.slice(6)
+
         // convert phone to raw numbers
         const cleanedFormData = {
             ...formData,
-            phone: formData.phone.replace(/\D/g, '') 
+            phone: updatedPhone
         };
 
-        // TODO: form submitting
+        // submit form
         try {
-            // TODO: check if the applicant already applied
-            const response = await fetch(`/api/applicants/${encodeURIComponent(formData.email)}`);        
+            const response = await fetch(`/api/applicants/${cleanedFormData.email}`);  
+
             if (response.status === 404) { // email doesn't exist, add new applicant
-            //     const createResponse = await fetch('/api/applicants', {
-            //         method: 'POST',
-            //         headers: {
-            //             'Content-Type': 'application/json',
-            //         },
-            //         body: JSON.stringify({
-            //             ...cleanedFormData,
-            //             starred: true
-            //         }),
-            //     });
-    
-            //     if (!createResponse.ok) {
-            //         throw new Error('Failed to create new applicant');
-            //     }
-    
-            } else { 
-                // TODO: email DOES exist, star the existing applicant
+                const response = await fetch(`/api/applicants/${cleanedFormData.email}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ "email": cleanedFormData.email, "name": cleanedFormData.name, "phone": cleanedFormData.phone, "starred": true }),
+                });
+            
+                if (!response.ok) {
+                    console.error("Failed to create applicant");
+                    return null;
+                }
+            } 
+            else { // email DOES exist, star the existing applicant
+                const editResponse = await fetch(`/api/applicants/${cleanedFormData.email}`, {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ "starred": true }),
+                });
+
+                if (!response.ok) {
+                    console.error("Failed to update applicant");
+                }
+
             }
-
-
-
+            
             setFormState('success');
         } catch (error) {
             console.error('Error submitting form:', error);
