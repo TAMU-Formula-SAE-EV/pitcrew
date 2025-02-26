@@ -38,14 +38,14 @@ function Dashboard() {
     return <p>Loading...</p>;
   }
 
-  if (!session) {
-    return null;
-  }
+  // if (!session) {
+  //   return null;
+  // }
 
   return (
     <main className={styles.main}>
       <div className={styles.header}>
-        <h1 className={styles.title}>LeBron James</h1>
+        <h1 className={styles.title}>{session?.user?.name}</h1>
         <p className={styles.subtitle}>View and manage all candidates.</p>
 
         <Timeline

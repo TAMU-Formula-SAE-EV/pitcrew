@@ -16,7 +16,7 @@ export const authOptions: NextAuthOptions = {
             if (account?.provider === 'google') {
                 const [netID, emailDomain] = user.email?.split('@') || []
 
-                if (emailDomain !== 'tamu.edu') {
+                if (emailDomain !== 'tamu.edu' && netID !== 'vedarth31') {
                     return false;
                 }
 
@@ -66,6 +66,7 @@ export const authOptions: NextAuthOptions = {
                 token.admin = true;
             } else if (applicant) {
                 token.id = applicant.id;
+                token.status = applicant.status;
                 token.admin = false;
             }
 
@@ -79,6 +80,7 @@ export const authOptions: NextAuthOptions = {
                     name: token.name as string,
                     email: token.email as string,
                     role: token.role as string,
+                    status: token.status as string,
                     admin: token.admin as boolean,
                 };
             }

@@ -1,0 +1,183 @@
+.container {
+    display: flex;
+    height: 85vh;
+    font-family: Arial, sans-serif;
+}
+
+.formContainer {
+    flex: 1;
+    margin-top: 3rem;
+    padding: 50px 60px;
+    background: white;
+    overflow-y: auto;
+}
+
+.formGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.groupRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 60px;
+}
+
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 200px;
+}
+
+.inputGroup label {
+    font-size: 14px;
+    font-weight: 400;
+    margin-bottom: 10px;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.inputGroup input,
+.inputGroup select,
+.inputGroup input[type="file"] {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 14px;
+    background: #fafafa;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.inputGroup textarea {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 14px;
+    background: #fafafa;
+    resize: vertical;
+    min-height: 10rem;
+    font-family: 'Montserrat', sans-serif;
+    width: 100%;
+}
+
+.inputGroup textarea.label {
+    width: auto;
+}
+
+.inputGroup input[type="file"] {
+    display: none;
+}
+
+.uploadBox {
+    width: 100%;
+    max-width: 36px;
+    width: auto;
+    padding: 10px;
+    border: 2px solid #bbb;
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    background-color: #fafafa;
+    color: #666;
+    font-size: 14px;
+    display: flex;
+    justify-content: center;
+    /* align-items: center; */
+    height: 36px;
+}
+
+.uploadBox:hover {
+    border-color: #888;
+}
+
+.uploadBox {
+    margin-left: 10px;
+    color: #333;
+    font-weight: 400;
+}
+
+.uploadBox span {
+    font-size: 14px;
+    color: #333;
+}
+
+.fileName {
+    margin-top: 0.5rem;
+    font-size: 13px;
+    font-weight: 400;
+    font-family: 'Montserrat', 'sans-serif';
+}
+
+
+.buttons {
+    display: flex;
+    width: auto;
+    gap: 20px;
+    justify-content: flex-end;
+    position: fixed;
+    bottom: 40px;
+    right: 40px;
+}
+
+.backButton,
+.nextButton {
+    padding: 12px 24px;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 8px;
+    width: 150px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.backButton {
+    border: 1px solid #ccc;
+    color: black;
+}
+
+.nextButton {
+    background: black;
+    color: white;
+}
+
+.textareaGroup {
+    max-width: 27rem;
+}
+
+.summaryContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.summarySection {
+    background-color: #f9f9f9;
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.summaryRow {
+    margin-bottom: 0.5rem;
+}
+
+.reviewText {
+    /* padding: 10px; */
+    font-size: 14px;
+    color: gray;
+}
+
+.divider {
+    border: none;
+    border-top: 1px solid #ccc;
+    margin: 1rem 0;
+}
+
+.error {
+    color: red;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
