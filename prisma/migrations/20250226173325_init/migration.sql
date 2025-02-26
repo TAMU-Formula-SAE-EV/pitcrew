@@ -1,12 +1,8 @@
 -- CreateEnum
-<<<<<<<< HEAD:prisma/migrations/20250224223505_initial_schema/migration.sql
 CREATE TYPE "DecisionType" AS ENUM ('ACCEPTED', 'REJECTED', 'NEUTRAL', 'OVERRIDE');
 
 -- CreateEnum
-CREATE TYPE "Status" AS ENUM ('APPLIED', 'INTERVIEWING', 'OFFER', 'REJECTED', 'WAITLISTED', 'WITHDRAWN');
-========
 CREATE TYPE "Status" AS ENUM ('REGISTRATION', 'APPLIED', 'INTERVIEWING', 'OFFER', 'REJECTED', 'WAITLISTED', 'WITHDRAWN');
->>>>>>>> ae6067da654911300f439f48661af42b3f5870d7:prisma/migrations/20250218212543_init/migration.sql
 
 -- CreateEnum
 CREATE TYPE "AdminRole" AS ENUM ('ADMIN', 'LEAD', 'MEMBER');
