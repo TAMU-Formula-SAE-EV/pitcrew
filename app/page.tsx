@@ -1,12 +1,31 @@
 "use client"
 
 import { useSession, signIn } from 'next-auth/react';
-import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect } from 'react';
+import styles from './page.module.css';
+import Logo from "@/public/icons/logo.svg";
+import FrontPage from '@/public/icons/front-page.svg'
+import Image from 'next/image';
 
 export default function Home() {
 
   const { data: session } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (session) {
+      if (session.user.admin) {
+        router.push('/dashboard');
+      } else {
+        if (session.user.status === 'REGISTRATION') {
+          router.push('/application');
+        } else {
+          router.push('/application/submitted');
+        }
+      }
+    }
+  })
 
   const searchParams = useSearchParams();
   const error = searchParams.get('error');
@@ -21,19 +40,25 @@ export default function Home() {
 
   return (
     <main>
-      <div>
-        <h1>Formula Electric Recruiting</h1>
-        <p>Join our team and help build the future of electric racing.</p>
-        <div>
-          <Link href="/apply">Apply Now</Link>
+      <div className={styles.container}>
+        <div className={styles.left}>
+          <Image
+            className={styles.logo}
+            src={Logo}
+            alt="PitCrew Logo"
+          />
+          <h1 className={styles.title}>Get Started</h1>
+          <p className={styles.subtitle}>Welcome to Pitcrew</p>
+          <button className={styles.googleButton} onClick={() => signIn('google', { callbackUrl: '/dashboard' })}>Sign in with Google</button>
+          {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
         </div>
-        {!session && (
-          <div>
-            <p>You are not signed in.</p>
-            {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
-            <button onClick={() => signIn('google', { callbackUrl: '/dashboard' })}>Sign in with Google</button>
-          </div>
-        )}
+
+        <div className={styles.right}>
+          <Image
+            src={FrontPage}
+            alt='Pitcrew'
+            className={styles.image} />
+        </div>
       </div>
     </main>
   );

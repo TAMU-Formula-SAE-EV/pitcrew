@@ -1,0 +1,53 @@
+.logo {
+    background-color: #000;
+    padding: 10px;
+    width: 40px;
+    border-radius: 5px;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #ffffff;
+}
+
+.content {
+    text-align: center;
+    max-width: 500px;
+}
+
+.title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #000000;
+    margin-bottom: 1rem;
+    font-family: 'Montserrat';
+}
+
+.line {
+    width: 25rem;
+    border: 0.5px solid #ccc;
+    margin: 10px auto;
+}
+
+.subtitle {
+    font-size: 14px;
+    color: #777777;
+    margin-bottom: 2rem;
+    font-family: 'Montserrat';
+}
+
+.iconContainer {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.formulaLogo, .insta {
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+}

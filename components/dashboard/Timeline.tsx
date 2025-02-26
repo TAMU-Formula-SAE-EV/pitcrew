@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
 import styles from './Timeline.module.css';
-
-type StatusType = 'Applied' | 'Interviewing' | 'Offer' | 'Rejected';
+import { StatusType } from '@/types';
 
 interface TimelineProps {
     activeTab: StatusType;
