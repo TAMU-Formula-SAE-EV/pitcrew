@@ -28,7 +28,7 @@ export const useApplicantDetails = (email: string | null) => {
         };
     }, [email, queryClient]);
 
-    return useQuery<DetailedApplicant>({
+    const query = useQuery<DetailedApplicant>({
         queryKey: ['applicant', email],
         queryFn: async () => {
             if (!email) throw new Error('No email provided');
@@ -38,4 +38,10 @@ export const useApplicantDetails = (email: string | null) => {
         },
         enabled: !!email,
     });
+
+    // Add a refetchApplicant function to the returned object
+    return {
+        ...query,
+        refetchApplicant: () => queryClient.invalidateQueries({ queryKey: ['applicant', email] })
+    };
 };

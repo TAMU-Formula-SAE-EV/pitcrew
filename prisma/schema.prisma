@@ -27,6 +27,27 @@ model Applicant {
   applications Application[]
   interviews   Interview[]
   subteams     ApplicantSubteam[]
+  interviewDecisions    InterviewDecision[]
+}
+
+model InterviewDecision {
+  id        String       @id @default(cuid())
+  type      DecisionType
+  comment   String
+  commenter String
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  // Relations
+  applicant   Applicant  @relation(fields: [applicantId], references: [id])
+  applicantId String
+}
+
+enum DecisionType {
+  ACCEPTED
+  REJECTED
+  NEUTRAL
+  OVERRIDE
 }
 
 model Application {

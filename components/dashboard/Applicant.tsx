@@ -1,12 +1,106 @@
+"use client"
 import styles from './Applicant.module.css';
+import { useSession } from 'next-auth/react';
+import { useState, useRef, useEffect } from 'react';
 import { useApplicantDetails } from '@/hooks/useApplicantDetails';
+import { formatDistanceToNow } from 'date-fns';
+import { formatSubteamName } from './ApplicantList';
+import Image from 'next/image';
+import Star from "../../public/icons/star.svg";
+import Resume from "../../public/icons/resume.svg";
+import DownArrow from "../../public/icons/down-arrow.svg";
+import { getSubteamAbbreviation } from '@/utils/utils';
+import { toast } from 'react-hot-toast';
 
 type ApplicantProps = {
     selectedEmail: string | null;
 };
 
+type DecisionType = 'accept' | 'comment' | 'reject' | 'override' | null;
+
 export default function Applicant({ selectedEmail }: ApplicantProps){
-    const { data: applicant, isLoading, error } = useApplicantDetails(selectedEmail);
+    const [activeTab, setActiveTab] = useState('info');
+    const [showDropdown, setShowDropdown] = useState(false);
+    const [showModal, setShowModal] = useState(false);
+    const [decision, setDecision] = useState<DecisionType>(null);
+    const [comment, setComment] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
+    const modalRef = useRef<HTMLDivElement>(null);
+    const { 
+        data: applicant, 
+        isLoading, 
+        error, 
+        refetchApplicant 
+    } = useApplicantDetails(selectedEmail);
+    const daysAgo = applicant ? formatDistanceToNow(new Date(applicant.appliedAt), { addSuffix: true }) : '';
+    const subteams = applicant?.subteams
+        ?.sort((a, b) => a.preferenceOrder - b.preferenceOrder)
+        .map(s => getSubteamAbbreviation(s.subteam.name))
+        .join('/');
+    const { data: session, status } = useSession();
+    const userName = session && session.user?.name;
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setShowDropdown(false);
+            }
+            if (modalRef.current && !modalRef.current.contains(event.target as Node) && showModal) {
+                // don't close modal when clicking outside
+                // this is so users complete their decision
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [showModal]);
+
+    const handleSubmitDecision = async () => {
+        if (!selectedEmail || !comment.trim() || !decision) return;
+        
+        setIsSubmitting(true);
+        
+        try {
+            const response = await fetch('/api/applicants/interview-decisions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: selectedEmail,
+                    commenter: userName,
+                    comment: comment.trim(),
+                    decision: decision
+                }),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to submit decision');
+            }
+            
+            toast.success('Decision submitted successfully');
+
+            setShowModal(false);
+            setComment('');
+            
+            refetchApplicant(); // refreshes with new decision
+        } catch (error) {
+            console.error('Error submitting decision:', error);
+            toast.error(error instanceof Error ? error.message : 'Failed to submit decision');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleSelectDecision = (selected: DecisionType) => {
+        setDecision(selected);
+        setShowDropdown(false);
+        setShowModal(true);
+    };
 
     if (!selectedEmail) {
         return (
@@ -36,9 +130,178 @@ export default function Applicant({ selectedEmail }: ApplicantProps){
 
     return (
         <div className={styles.container}>
-            <pre className={styles.details}>
-                {JSON.stringify(applicant, null, 2)}
-            </pre>
+            <header className={styles.header}>
+                <div className={styles.headerRight}>
+                    <h1 className={styles.applicantName}>{applicant?.name}</h1>
+                    <h1 className={styles.headerSub}>{applicant?.major}</h1>
+                    {/* <div className={styles.tile}>EV First Choice</div> todo - actually implement */}
+                    {/* <div className={styles.tile}>
+                        {typeof applicant?.approvalCount === 'number' ? 
+                            Array.from({ length: applicant.approvalCount }).map((_, index) => (
+                                <div key={index} className={styles.approvalItem}>
+                                    Approval {index + 1}
+                                </div>
+                        )) : <h1>NA</h1>}
+                    </div> */}
+                    <div className={styles.tile}>{subteams}</div>
+                    <div className={styles.tile}>{applicant?.year}</div>
+                    <button className={styles.resumeButton}>
+                        <Image src={Resume.src} width={21.6} height={12} alt='Resume'/>
+                    </button>
+                    <h1 className={styles.headerSub}>{daysAgo}</h1>
+                    <button 
+                        className={`${styles.starButton} ${applicant?.starred ? styles.starred : ''}`}
+                        aria-label="Toggle star"
+                    >
+                        <Image 
+                            src={Star.src} 
+                            width={15} 
+                            height={15} 
+                            alt='Star'
+                        />
+                    </button>
+                </div>
+                <div className={styles.decisionWrapper} ref={dropdownRef}>
+                    <button 
+                        className={styles.decisionButton}
+                        onClick={() => setShowDropdown(!showDropdown)}
+                    >
+                        <span>Decision</span>
+                        <Image 
+                            src={DownArrow.src} 
+                            width={12} 
+                            height={12} 
+                            alt="Options"
+                            className={`${styles.dropdownArrow} ${showDropdown ? styles.rotated : ''}`}
+                        />
+                    </button>
+                    
+                    {showDropdown && (
+                        <div className={styles.dropdown}>
+                            <button 
+                                className={`${styles.dropdownItem} ${styles.acceptItem}`} 
+                                onClick={() => handleSelectDecision('accept')}
+                            >
+                                Accept
+                            </button>
+                            <button 
+                                className={`${styles.dropdownItem} ${styles.neutralItem}`} 
+                                onClick={() => handleSelectDecision('comment')}
+                            >
+                                Neutral
+                            </button>
+                            <button 
+                                className={`${styles.dropdownItem} ${styles.rejectItem}`} 
+                                onClick={() => handleSelectDecision('reject')}
+                            >
+                                Reject
+                            </button>
+                            <div className={styles.dropdownDivider}></div>
+                            <button 
+                                className={`${styles.dropdownItem} ${styles.overrideItem}`} 
+                                onClick={() => handleSelectDecision('override')}
+                            >
+                                Override
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </header>
+
+            <div className={styles.tabsContainer}>
+                <button 
+                    className={`${styles.tabButton} ${activeTab === 'info' ? styles.activeTab : ''}`}
+                    onClick={() => setActiveTab('info')}
+                >
+                    Info
+                </button>
+                <button 
+                    className={`${styles.tabButton} ${activeTab === 'resume' ? styles.activeTab : ''}`}
+                    onClick={() => setActiveTab('resume')}
+                >
+                    Resume
+                </button>
+            </div>
+            
+            <div className={styles.tabContent}>
+                {activeTab === 'info' && (
+                    <div className={styles.infoTab}>
+                        {applicant?.interviewDecisions && applicant.interviewDecisions.length > 0 && (
+                            <div className={styles.decisionsSection}>
+                                <h3>Interview Decisions</h3>
+                                <div className={styles.decisionsList}>
+                                    {applicant.interviewDecisions.map((decision) => (
+                                        <div key={decision.id} className={styles.decisionItem}>
+                                            <div className={styles.decisionHeader}>
+                                                <span className={`${styles.decisionType} ${styles[decision.type.toLowerCase()]}`}>
+                                                    {decision.type}
+                                                </span>
+                                                <span className={styles.decisionMeta}>
+                                                    by {decision.commenter} • {formatDistanceToNow(new Date(decision.createdAt), { addSuffix: true })}
+                                                </span>
+                                            </div>
+                                            <p className={styles.decisionComment}>{decision.comment}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+                
+                {activeTab === 'resume' && (
+                    <div className={styles.resumeTab}>
+                        {/* todo: display embedded resume */}
+                        <p>Applicant resume will be embedded here</p>
+                    </div>
+                )}
+            </div>
+            {/* comment modal */}
+            {showModal && (
+                <div className={styles.modalOverlay}>
+                    <div className={styles.modal} ref={modalRef}>
+                        <div className={styles.modalHeader}>
+                            <h2>
+                                {decision === 'accept' && 'Why accept this applicant?'}
+                                {decision === 'comment' && 'What is your comment on this applicant?'}
+                                {decision === 'reject' && 'Why reject this applicant?'}
+                                {decision === 'override' && 'Reason for override'}
+                            </h2>
+                        </div>
+                        <div className={styles.modalBody}>
+                            <textarea
+                                className={styles.commentTextarea}
+                                placeholder="Enter a brief explanation of your decision..."
+                                value={comment}
+                                onChange={(e) => setComment(e.target.value)}
+                                rows={5}
+                                autoFocus
+                            />
+                        </div>
+                        <div className={styles.modalFooter}>
+                            <button 
+                                className={styles.cancelButton}
+                                onClick={() => {
+                                    setComment('')
+                                    setShowModal(false)
+                                }}
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                className={styles.submitButton}
+                                onClick={handleSubmitDecision}
+                                disabled={!comment.trim()}
+                            >
+                                Submit Decision
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
+
+// todo: check if user already left decision that wasn't neutral
+// todo: check if user admin to show override functionality
