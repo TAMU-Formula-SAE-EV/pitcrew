@@ -8,9 +8,11 @@ export async function GET(
     { params }: { params: { email: string } }
 ) {
     try {
+        const param = await params; // hacky nextjs bug fix about params needing to be awaited
+        const email = param.email;
         const applicant = await prisma.applicant.findUnique({
             where: {
-                email: params.email
+                email: email
             },
             include: {
                 applications: {
@@ -27,7 +29,8 @@ export async function GET(
                         subteam: true
                     }
                 },
-                interviews: true
+                interviews: true,
+                interviewDecisions: true
             }
         });
 
@@ -38,7 +41,16 @@ export async function GET(
             );
         }
 
-        return NextResponse.json(applicant);
+        const acceptedDecisions = applicant.interviewDecisions.filter(
+            decision => decision.type === 'ACCEPTED'
+        ).length;
+
+        const response = {
+            ...applicant,
+            approvalCount: acceptedDecisions
+        };
+
+        return NextResponse.json(response);
     } catch (error) {
         return NextResponse.json(
             { error: 'Failed to fetch applicant' }, 

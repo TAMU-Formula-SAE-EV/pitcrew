@@ -1,4 +1,4 @@
-import { Status } from '@prisma/client';
+import { Status, DecisionType } from '@prisma/client';
 
 // frontend status type that matches the UI
 export type StatusType = 'Applied' | 'Interviewing' | 'Offer' | 'Rejected';
@@ -11,6 +11,15 @@ export const statusMap: Record<StatusType, Status> = {
     'Rejected': Status.REJECTED
 };
 
+export type InterviewDecisionData = {
+    id: string;
+    type: DecisionType;
+    comment: string;
+    commenter: string;
+    createdAt: Date;
+    updatedAt: Date;
+};
+
 // base applicant type
 export type ApplicantPreviewData = {
     id: string;
@@ -19,7 +28,7 @@ export type ApplicantPreviewData = {
     year: number;
     status: Status;
     starred: boolean;
-    approvalCount: number;
+    approvalCount: number; // computed on server
     appliedAt: Date;
     subteams?: {
         preferenceOrder: number;
@@ -40,7 +49,7 @@ export type DetailedApplicant = {
     status: Status;
     override: boolean;
     starred: boolean;
-    approvalCount: number;
+    approvalCount: number; // still computed on server
     appliedAt: Date;
     applications: {
         generalResponses: any; // to update
@@ -64,6 +73,7 @@ export type DetailedApplicant = {
         location: string;
         notes: string | null;
     }[];
+    interviewDecisions: InterviewDecisionData[];
 };
 
 // update notification type

@@ -1,9 +1,11 @@
+"use client"
 import styles from './ApplicantList.module.css';
 import { statusMap, ApplicantSectionProps, ApplicantPreviewData, StatusType } from '@/types';
 import { useApplicants } from '@/hooks/useApplicants';
 import Star from "@/public/icons/star.svg";
 import Checkmark from "@/public/icons/checkmark.svg";
 import Arrow from "@/public/icons/right_arrow.svg";
+import { useState, useEffect } from 'react';
 import Resume from "@/public/icons/resume.svg";
 import Image from 'next/image';
 import { formatDistanceToNow } from 'date-fns';
@@ -25,20 +27,24 @@ export const formatSubteamName = (name: string) => {
 const ApplicantPreview = ({ 
         applicant, 
         isSelected,
-        onSelect 
+        onSelect,
+        previouslySelected
     }: { 
         applicant: ApplicantPreviewData;
         isSelected: boolean;
         onSelect: () => void;
+        previouslySelected: boolean;
     }) => {
     const daysAgo = formatDistanceToNow(new Date(applicant.appliedAt), { addSuffix: true });
     const subteams = applicant.subteams
         ?.sort((a, b) => a.preferenceOrder - b.preferenceOrder)
         .map(s => formatSubteamName(s.subteam.name))
         .join(', ');
+    
+    const previewClass = `${styles.applicantPreview} ${isSelected ? styles.selected : ''}`;
 
     return (
-        <div className={`${styles.applicantPreview} ${isSelected ? styles.selected : ''}`} onClick={onSelect}>
+        <div className={previewClass} onClick={onSelect}>
             <div className={styles.headerRow}>
                 <h3 className={styles.name}>{applicant.name}</h3>
                 <button 
@@ -88,7 +94,16 @@ export default function ApplicantList({
         onSelectApplicant 
     }: ApplicantListProps) {
     const { data: applicants, isLoading, error } = useApplicants(statusMap[status]);
+    const [previouslySelectedEmail, setPreviouslySelectedEmail] = useState<string | null>(null);
     
+    useEffect(() => {
+        if (selectedEmail !== previouslySelectedEmail && previouslySelectedEmail !== null) {
+            setPreviouslySelectedEmail(selectedEmail);
+        } else if (selectedEmail !== null && previouslySelectedEmail === null) {
+            setPreviouslySelectedEmail(null);
+        }
+    }, [selectedEmail, previouslySelectedEmail]);
+
     if (isLoading) {
         return <div className={styles.loadingState}>Loading applicants...</div>;
     }
@@ -104,7 +119,11 @@ export default function ApplicantList({
                     key={applicant.id} 
                     applicant={applicant}
                     isSelected={applicant.email === selectedEmail}
-                    onSelect={() => onSelectApplicant(applicant.email)}
+                    previouslySelected={applicant.email === previouslySelectedEmail}
+                    onSelect={() => {
+                        setPreviouslySelectedEmail(selectedEmail);
+                        onSelectApplicant(applicant.email);
+                    }}
                 />
             ))}
         </div>

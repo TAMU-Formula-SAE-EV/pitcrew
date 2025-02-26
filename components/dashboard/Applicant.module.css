@@ -16,7 +16,417 @@
     font-size: 16px;
 }
 
-.details {
+header.header{
+    display: flex;
+    justify-content: space-between;
+    margin: 2rem;
+    align-items: center;
+}
+
+header .headerRight{
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    gap: 1rem;
+}
+
+.headerRight h1.headerSub{
+    font-weight: normal;
+    font-size: .9rem;
+    color: #767676;
+}
+
+.headerRight .tile{
+    background-color: #F2F2F4;
+    padding: .5rem 1rem;
+    font-size: .9rem;
+    border-radius: 5px;
+}
+
+.starButton {
+    background: none;
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.resumeButton {
+    background-color: #F2F2F4;
+    border: none;
+    padding: .65rem;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #4A4A4A;
+    transition: background-color 0.2s ease;
+}
+
+.resumeButton:hover {
+    background-color: #E8E8EA;
+}
+
+.starred {
+    opacity: 1;
+}
+
+/* decision stuff */
+
+.decisionWrapper {
+    position: relative;
+}
+
+button.decisionButton {
     font-family: 'Montserrat', sans-serif;
-    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.8rem;
+    background-color: black;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 1rem 2rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+button.decisionButton:hover {
+    background-color: #333;
+}
+
+.dropdownArrow {
+    transition: transform 0.2s ease;
+}
+
+.rotated {
+    transform: rotate(180deg);
+}
+
+.dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    min-width: 180px;
+    background-color: white;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    overflow: hidden;
+    animation: fadeIn 0.2s ease;
+}
+
+.dropdownDivider {
+    height: 1px;
+    background-color: #E3E3E3;
+    margin: 4px 0;
+}
+
+.dropdownItem {
+    display: block;
+    width: 100%;
+    padding: 10px 16px;
+    text-align: left;
+    background: none;
+    border: none;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.dropdownItem:hover {
+    background-color: #F9F9F9;
+}
+
+.acceptItem {
+    color: #3e6d4c;
+}
+
+.acceptItem:hover {
+    background-color: rgba(62, 109, 76, 0.1);
+}
+
+.neutralItem {
+    color: #767676;
+}
+
+.neutralItem:hover {
+    background-color: rgba(118, 118, 118, 0.1);
+}
+
+.rejectItem {
+    color: #d32f2f;
+}
+
+.rejectItem:hover {
+    background-color: rgba(211, 47, 47, 0.1);
+}
+
+.overrideItem {
+    color: #1976d2;
+}
+
+.overrideItem:hover {
+    background-color: rgba(25, 118, 210, 0.1);
+}
+
+h1.applicantName{
+    font-weight: 500;
+    font-size: .9rem;
+    margin: 0;
+}
+
+.tabsContainer {
+    display: flex;
+    margin: 0 2rem;
+    border-bottom: 1px solid #E3E3E3;
+}
+
+.tabButton {
+    font-family: 'Montserrat', sans-serif;
+    background: transparent;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    position: relative;
+    color: #767676;
+    font-weight: normal;
+    transition: color 0.2s ease;
+}
+
+.activeTab {
+    color: #3e6d4c;
+}
+
+.activeTab::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #3e6d4c;
+}
+
+.tabContent {
+    padding: 2rem;
+    min-height: 200px;
+}
+
+.infoTab, .resumeTab {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* comment modal stuff */
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal {
+    background-color: white;
+    border-radius: 8px;
+    width: 500px;
+    max-width: 90vw;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    animation: slideUp 0.3s ease;
+}
+
+.modalHeader {
+    padding: 20px 24px;
+    border-bottom: 1px solid #E3E3E3;
+}
+
+.modalHeader h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 500;
+    color: #333;
+}
+
+.modalBody {
+    padding: 24px;
+}
+
+.commentTextarea {
+    width: 94%;
+    padding: 12px;
+    border: 1px solid #E3E3E3;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    resize: vertical;
+    font-family: inherit;
+    transition: border-color 0.2s ease;
+    resize: none;
+}
+
+.commentTextarea:focus {
+    outline: none;
+    border-color: #3e6d4c;
+}
+
+.modalFooter {
+    padding: 16px 24px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    border-top: 1px solid #E3E3E3;
+}
+
+.cancelButton {
+    padding: 8px 16px;
+    background-color: transparent;
+    color: #767676;
+    border: 1px solid #E3E3E3;
+    border-radius: 5px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.cancelButton:hover {
+    background-color: #F9F9F9;
+}
+
+.submitButton {
+    padding: 8px 16px;
+    background-color: black;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.submitButton:hover {
+    background-color: #333;
+}
+
+.submitButton:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { 
+        opacity: 0;
+        transform: translateY(20px); 
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0); 
+    }
+}
+
+/* decisions section */
+
+.decisionsSection {
+    margin-top: 2rem;
+    border-top: 1px solid #E3E3E3;
+    padding-top: 1.5rem;
+}
+
+.decisionsSection h3 {
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+.decisionsList {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.decisionItem {
+    background-color: #F9F9F9;
+    border-radius: 6px;
+    padding: 1rem;
+    border-left: 3px solid #CCCCCC;
+}
+
+.decisionItem.accepted {
+    border-left-color: #3e6d4c;
+}
+
+.decisionItem.rejected {
+    border-left-color: #d32f2f;
+}
+
+.decisionItem.neutral {
+    border-left-color: #767676;
+}
+
+.decisionItem.override {
+    border-left-color: #1976d2;
+}
+
+.decisionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.decisionType {
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.accepted {
+    color: #3e6d4c;
+}
+
+.rejected {
+    color: #d32f2f;
+}
+
+.neutral {
+    color: #767676;
+}
+
+.override {
+    color: #1976d2;
+}
+
+.decisionMeta {
+    font-size: 0.8rem;
+    color: #767676;
+}
+
+.decisionComment {
+    font-size: 0.9rem;
+    margin: 0;
+    white-space: pre-wrap;
 }

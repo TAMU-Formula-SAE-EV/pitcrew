@@ -1,4 +1,7 @@
 -- CreateEnum
+CREATE TYPE "DecisionType" AS ENUM ('ACCEPTED', 'REJECTED', 'NEUTRAL', 'OVERRIDE');
+
+-- CreateEnum
 CREATE TYPE "Status" AS ENUM ('APPLIED', 'INTERVIEWING', 'OFFER', 'REJECTED', 'WAITLISTED', 'WITHDRAWN');
 
 -- CreateEnum
@@ -19,10 +22,25 @@ CREATE TABLE "Applicant" (
     "status" "Status" NOT NULL DEFAULT 'APPLIED',
     "override" BOOLEAN NOT NULL DEFAULT false,
     "starred" BOOLEAN NOT NULL DEFAULT false,
+    "approvalCount" INTEGER NOT NULL DEFAULT 0,
+    "appliedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "Applicant_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "InterviewDecision" (
+    "id" TEXT NOT NULL,
+    "type" "DecisionType" NOT NULL,
+    "comment" TEXT NOT NULL,
+    "commenter" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "applicantId" TEXT NOT NULL,
+
+    CONSTRAINT "InterviewDecision_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -121,6 +139,9 @@ CREATE UNIQUE INDEX "Admin_email_key" ON "Admin"("email");
 
 -- CreateIndex
 CREATE INDEX "_AdminToSubteam_B_index" ON "_AdminToSubteam"("B");
+
+-- AddForeignKey
+ALTER TABLE "InterviewDecision" ADD CONSTRAINT "InterviewDecision_applicantId_fkey" FOREIGN KEY ("applicantId") REFERENCES "Applicant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Application" ADD CONSTRAINT "Application_applicantId_fkey" FOREIGN KEY ("applicantId") REFERENCES "Applicant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
