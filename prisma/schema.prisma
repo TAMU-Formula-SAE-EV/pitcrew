@@ -11,11 +11,11 @@ model Applicant {
   id            String   @id @default(cuid())
   name          String
   email         String   @unique
-  phone         String
-  major         String
-  year          Int      // 1-4 for year
-  semester      Int      // 1 or 2 for semester
-  status        Status   @default(APPLIED)
+  phone         String?
+  major         String?
+  year          Int? // 1-4 for year
+  semester      Int? // 1 or 2 for semester
+  status        Status   @default(REGISTRATION)
   override      Boolean  @default(false)
   starred       Boolean  @default(false)
   approvalCount Int      @default(0)
@@ -62,9 +62,9 @@ model Application {
   resumeUrl String?
 
   // relations
-  applicant    Applicant @relation(fields: [applicantId], references: [id])
-  applicantId  String
-  subteamApps  SubteamApplication[]
+  applicant   Applicant            @relation(fields: [applicantId], references: [id])
+  applicantId String
+  subteamApps SubteamApplication[]
 }
 
 model SubteamApplication {
@@ -74,7 +74,7 @@ model SubteamApplication {
 
   // subteam specific responses
   responses Json
-  
+
   // files URLs (azure blob)
   fileUrls String[]
 
@@ -91,18 +91,18 @@ model Subteam {
   description String?
 
   // relations
-  applications    SubteamApplication[]
-  admins          Admin[]
-  applicants      ApplicantSubteam[]
+  applications SubteamApplication[]
+  admins       Admin[]
+  applicants   ApplicantSubteam[]
 }
 
 // junction table for applicant-subteam (allows tracking preference order)
 model ApplicantSubteam {
-  applicant     Applicant @relation(fields: [applicantId], references: [id])
-  applicantId   String
-  subteam       Subteam   @relation(fields: [subteamId], references: [id])
-  subteamId     String
-  preferenceOrder Int      // 1 or 2 for first/second choice
+  applicant       Applicant @relation(fields: [applicantId], references: [id])
+  applicantId     String
+  subteam         Subteam   @relation(fields: [subteamId], references: [id])
+  subteamId       String
+  preferenceOrder Int // 1 or 2 for first/second choice
 
   @@id([applicantId, subteamId])
 }
@@ -116,23 +116,23 @@ model Interview {
   updatedAt DateTime @updatedAt
 
   // relations
-  applicant    Applicant @relation(fields: [applicantId], references: [id])
-  applicantId  String
-  admins       InterviewAdmin[]
+  applicant   Applicant        @relation(fields: [applicantId], references: [id])
+  applicantId String
+  admins      InterviewAdmin[]
 }
 
 model Admin {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   name      String
-  email     String   @unique
+  email     String    @unique
   phone     String?
   role      AdminRole @default(MEMBER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
   // relations
-  subteams        Subteam[]
-  interviews      InterviewAdmin[]
+  subteams   Subteam[]
+  interviews InterviewAdmin[]
 }
 
 // Junction table for Interview-Admin
@@ -146,6 +146,7 @@ model InterviewAdmin {
 }
 
 enum Status {
+  REGISTRATION
   APPLIED
   INTERVIEWING
   OFFER

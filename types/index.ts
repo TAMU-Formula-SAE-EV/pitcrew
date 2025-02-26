@@ -1,10 +1,11 @@
 import { Status, DecisionType } from '@prisma/client';
 
 // frontend status type that matches the UI
-export type StatusType = 'Applied' | 'Interviewing' | 'Offer' | 'Rejected';
+export type StatusType = 'Registration' | 'Applied' | 'Interviewing' | 'Offer' | 'Rejected';
 
 // mapping between UI status and prisma status
 export const statusMap: Record<StatusType, Status> = {
+    'Registration': Status.REGISTRATION,
     'Applied': Status.APPLIED,
     'Interviewing': Status.INTERVIEWING,
     'Offer': Status.OFFER,

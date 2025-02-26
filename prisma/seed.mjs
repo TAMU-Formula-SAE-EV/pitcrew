@@ -42,7 +42,7 @@ async function main() {
     })
 
     // create applicants with their applications
-    const applicant1 = await prisma.applicant.create({
+    await prisma.applicant.create({
         data: {
             name: 'Alice Johnson',
             email: 'alice@example.com',
@@ -82,7 +82,7 @@ async function main() {
         }
     })
 
-    const applicant2 = await prisma.applicant.create({
+    await prisma.applicant.create({
         data: {
             name: 'Bob Smith',
             email: 'bob@example.com',
@@ -145,7 +145,7 @@ async function main() {
         }
     })
 
-    const applicant3 = await prisma.applicant.create({
+    await prisma.applicant.create({
         data: {
             name: 'John Manning',
             email: 'john@example.com',
