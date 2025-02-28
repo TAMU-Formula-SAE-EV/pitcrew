@@ -136,7 +136,7 @@ model Admin {
   interviews InterviewAdmin[]
 }
 
-// Junction table for Interview-Adminq  
+// Junction table for Interview-Admin
 model InterviewAdmin {
   interview   Interview @relation(fields: [interviewId], references: [id])
   interviewId String
