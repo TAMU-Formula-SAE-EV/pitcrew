@@ -1,3 +1,5 @@
+import { Subteams } from "@prisma/client";
+
 export const getSubteamAbbreviation = (subteamName: string): string => {
     const abbreviationMap: Record<string, string> = {
         'SOFTWARE': 'SW',
@@ -13,6 +15,26 @@ export const getSubteamAbbreviation = (subteamName: string): string => {
         'AERODYNAMICS': 'AERO',
         'SUSPENSION': 'SUS',
         'FINANCE': 'FIN'
+    };
+
+    return abbreviationMap[subteamName] || subteamName;
+};
+
+export const getSubteamEnum = (subteamName: string): string => {
+    const abbreviationMap: Record<string, Subteams> = {
+
+        'aerodynamics': 'AERODYNAMICS',
+        'battery': 'BATTERY',
+        'business': 'BUSINESS',
+        'chassis': 'CHASSIS',
+        'distributed battery management': 'DISTRIBUTED_BATTERY_MANAGEMENT',
+        'electronics': 'ELECTRONICS',
+        'powertrain': 'POWERTRAIN',
+        'software': 'SOFTWARE',
+        'suspension': 'SUSPENSION',
+        'finance': 'FINANCE',
+        'marketing': 'MARKETING',
+        'operations': 'OPERATIONS',
     };
 
     return abbreviationMap[subteamName] || subteamName;

@@ -1,12 +1,8 @@
 -- CreateEnum
-<<<<<<<< HEAD:prisma/migrations/20250224223505_initial_schema/migration.sql
 CREATE TYPE "DecisionType" AS ENUM ('ACCEPTED', 'REJECTED', 'NEUTRAL', 'OVERRIDE');
 
 -- CreateEnum
-CREATE TYPE "Status" AS ENUM ('APPLIED', 'INTERVIEWING', 'OFFER', 'REJECTED', 'WAITLISTED', 'WITHDRAWN');
-========
 CREATE TYPE "Status" AS ENUM ('REGISTRATION', 'APPLIED', 'INTERVIEWING', 'OFFER', 'REJECTED', 'WAITLISTED', 'WITHDRAWN');
->>>>>>>> ae6067da654911300f439f48661af42b3f5870d7:prisma/migrations/20250218212543_init/migration.sql
 
 -- CreateEnum
 CREATE TYPE "AdminRole" AS ENUM ('ADMIN', 'LEAD', 'MEMBER');
@@ -21,8 +17,9 @@ CREATE TABLE "Applicant" (
     "email" TEXT NOT NULL,
     "phone" TEXT,
     "major" TEXT,
-    "year" INTEGER,
-    "semester" INTEGER,
+    "classification" TEXT,
+    "gradSem" TEXT,
+    "gradYear" INTEGER,
     "status" "Status" NOT NULL DEFAULT 'REGISTRATION',
     "override" BOOLEAN NOT NULL DEFAULT false,
     "starred" BOOLEAN NOT NULL DEFAULT false,
@@ -52,7 +49,7 @@ CREATE TABLE "Application" (
     "id" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "generalResponses" JSONB NOT NULL,
+    "generalResponses" JSONB[],
     "resumeUrl" TEXT,
     "applicantId" TEXT NOT NULL,
 

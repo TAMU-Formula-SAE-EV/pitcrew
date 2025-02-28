@@ -6,7 +6,7 @@ export interface Question {
     group: number;
 }
 
-const SUBTEAMS = [
+export const SUBTEAMS = [
     'aerodynamics',
     'battery',
     'chassis',
@@ -35,7 +35,7 @@ export const CANDIDATE_INFO = [
         group: 1
     },
     {
-        id: 'phone_number',
+        id: 'phone',
         question: 'Phone Number',
         type: 'text',
         group: 1
@@ -80,6 +80,12 @@ export const GENERAL_QUESTIONS = [
     {
         id: 'motivation',
         question: 'Why do you want to join Formula Electric?',
+        type: 'text-area',
+        group: 2
+    },
+    {
+        id: 'experience',
+        question: 'What experience do you have in working as a team?',
         type: 'text-area',
         group: 2
     },
