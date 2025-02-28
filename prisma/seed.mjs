@@ -48,8 +48,9 @@ async function main() {
             email: 'alice@example.com',
             phone: '555-0123',
             major: 'Computer Science',
-            year: 2026,
-            semester: 1,
+            classification: 'Sophomore',
+            gradSem: 'Summer',
+            gradYear: 2026,
             status: Status.APPLIED,
             starred: true,
             applications: {
@@ -73,10 +74,10 @@ async function main() {
             },
             subteams: {
                 create: {
-                subteam: {
-                    connect: { id: softwareTeam.id }
-                },
-                preferenceOrder: 1
+                    subteam: {
+                        connect: { id: softwareTeam.id }
+                    },
+                    preferenceOrder: 1
                 }
             }
         }
@@ -88,8 +89,9 @@ async function main() {
             email: 'bob@example.com',
             phone: '555-0124',
             major: 'Electrical Engineering',
-            year: 2027,
-            semester: 2,
+            classification: 'Sophomore',
+            gradSem: 'Summer',
+            gradYear: 2026,
             status: Status.INTERVIEWING,
             applications: {
                 create: {
@@ -99,47 +101,47 @@ async function main() {
                     },
                     subteamApps: {
                         create: [
-                        {
-                            responses: {
-                                technicalSkills: 'PCB Design, MATLAB',
-                                projectExperience: 'Built a solar-powered charger'
-                            },
-                            subteam: {
-                                connect: { id: electricalTeam.id }
+                            {
+                                responses: {
+                                    technicalSkills: 'PCB Design, MATLAB',
+                                    projectExperience: 'Built a solar-powered charger'
+                                },
+                                subteam: {
+                                    connect: { id: electricalTeam.id }
+                                }
                             }
-                        }
                         ]
                     }
                 }
             },
             subteams: {
                 create: [
-                {
-                    subteam: {
-                    connect: { id: electricalTeam.id }
+                    {
+                        subteam: {
+                            connect: { id: electricalTeam.id }
+                        },
+                        preferenceOrder: 1
                     },
-                    preferenceOrder: 1
-                },
-                {
-                    subteam: {
-                    connect: { id: softwareTeam.id }
-                    },
-                    preferenceOrder: 2
-                }
-            ]
+                    {
+                        subteam: {
+                            connect: { id: softwareTeam.id }
+                        },
+                        preferenceOrder: 2
+                    }
+                ]
             },
             interviews: {
                 create: {
-                day: new Date('2024-02-15T14:00:00Z'),
-                location: 'Engineering Building Room 101',
-                notes: 'Strong candidate, good technical background',
-                admins: {
-                    create: {
-                    admin: {
-                        connect: { id: admin.id }
+                    day: new Date('2024-02-15T14:00:00Z'),
+                    location: 'Engineering Building Room 101',
+                    notes: 'Strong candidate, good technical background',
+                    admins: {
+                        create: {
+                            admin: {
+                                connect: { id: admin.id }
+                            }
+                        }
                     }
-                    }
-                }
                 }
             }
         }
@@ -151,8 +153,9 @@ async function main() {
             email: 'john@example.com',
             phone: '555-0124-123',
             major: 'Mechanical Engineering',
-            year: 2026,
-            semester: 1,
+            classification: 'Sophomore',
+            gradSem: 'Summer',
+            gradYear: 2026,
             status: Status.APPLIED,
             applications: {
                 create: {
@@ -162,34 +165,34 @@ async function main() {
                     },
                     subteamApps: {
                         create: [
-                        {
-                            responses: {
-                                technicalSkills: 'PCB Design, MATLAB',
-                                projectExperience: 'Built a solar-powered charger'
-                            },
-                            subteam: {
-                                connect: { id: electricalTeam.id }
+                            {
+                                responses: {
+                                    technicalSkills: 'PCB Design, MATLAB',
+                                    projectExperience: 'Built a solar-powered charger'
+                                },
+                                subteam: {
+                                    connect: { id: electricalTeam.id }
+                                }
                             }
-                        }
                         ]
                     }
                 }
             },
             subteams: {
                 create: [
-                {
-                    subteam: {
-                    connect: { id: softwareTeam.id  }
+                    {
+                        subteam: {
+                            connect: { id: softwareTeam.id }
+                        },
+                        preferenceOrder: 1
                     },
-                    preferenceOrder: 1
-                },
-                {
-                    subteam: {
-                    connect: { id: electricalTeam.id }
-                    },
-                    preferenceOrder: 2
-                }
-            ]
+                    {
+                        subteam: {
+                            connect: { id: electricalTeam.id }
+                        },
+                        preferenceOrder: 2
+                    }
+                ]
             },
         }
     })
@@ -205,4 +208,4 @@ main()
     .finally(async () => {
         await prisma.$disconnect()
     }
-)
+    )

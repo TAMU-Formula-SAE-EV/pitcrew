@@ -19,10 +19,11 @@ export default function Submitted() {
         if (session) {
             if (session.user.admin) {
                 router.push('/dashboard');
+            } else if (session.user.status === 'REGISTRATION') {
+                router.push('/application');
             }
-            // } else if (session.user.status === 'REGISTRATION') {
-            //     router.push('/application');
-            // }
+        } else {
+            router.push('/');
         }
     })
 

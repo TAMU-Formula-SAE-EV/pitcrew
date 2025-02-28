@@ -147,6 +147,9 @@ const ApplicationForm = () => {
         if (status !== 'loading' && !session || session?.user?.admin) {
             router.push('/');
         }
+        if (session && session.user.status === 'APPLIED') {
+            router.push('/application/submitted');
+        }
     }, [session, status, router]);
 
     useEffect(() => {
@@ -217,8 +220,61 @@ const ApplicationForm = () => {
         }));
     };
 
+    const formatFormData = (formData: FormDataState) => {
+        const { first_choice, second_choice, ...rest } = formData;
+
+        const subteamsApplied: Record<string, Record<string, string | number>> = {
+            [first_choice as string]: { preferenceOrder: 1 },
+            [second_choice as string]: { preferenceOrder: 2 }
+        };
+
+        Object.keys(formData).forEach((key) => {
+            if (key.startsWith(first_choice as string)) {
+                subteamsApplied[first_choice as string][key] = formData[key] as string;
+            } else if (key.startsWith(second_choice as string)) {
+                subteamsApplied[second_choice as string][key] = formData[key] as string;
+            }
+        });
+
+        const generalResponses: Record<string, string> = {};
+        const generalResponseIds = GENERAL_QUESTIONS
+            .map((q) => q.id)
+            .filter((id) => id !== "first_choice" && id !== "second_choice");
+
+        Object.keys(rest).forEach((key) => {
+            if (generalResponseIds.includes(key)) {
+                generalResponses[key] = rest[key] as string;
+                delete rest[key];
+            }
+        });
+
+        const cleanedRest = Object.fromEntries(
+            Object.entries(rest).filter(([key]) => !key.includes("-q"))
+        );
+
+        const applicantId = session.user?.id;
+
+        return {
+            applicantId,
+            subteamsApplied,
+            generalResponses,
+            ...cleanedRest,
+        };
+    };
+
     const handleSubmit = async () => {
-        console.log('Submitted Data:', formData)
+        const formattedFormData = formatFormData(formData);
+
+        console.log('Submitted Data:', formattedFormData)
+
+        const response = await fetch('/api/applicants/submission', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formattedFormData),
+        });
+
+        console.log(response);
+
         router.push('/application/submitted')
     };
 
