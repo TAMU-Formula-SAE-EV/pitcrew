@@ -144,7 +144,7 @@ export default function Applicant({ selectedEmail }: ApplicantProps){
                         )) : <h1>NA</h1>}
                     </div> */}
                     <div className={styles.tile}>{subteams}</div>
-                    <div className={styles.tile}>{applicant?.year}</div>
+                    <div className={styles.tile}>{applicant?.gradYear}</div>
                     <button className={styles.resumeButton}>
                         <Image src={Resume.src} width={21.6} height={12} alt='Resume'/>
                     </button>
