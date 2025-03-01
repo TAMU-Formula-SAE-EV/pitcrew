@@ -69,7 +69,7 @@ export const CANDIDATE_INFO = [
         group: 3
     },
     {
-        id: 'resume_upload',
+        id: 'resume',
         question: 'Upload Resume',
         type: 'file',
         group: 4
@@ -78,7 +78,7 @@ export const CANDIDATE_INFO = [
 
 export const GENERAL_QUESTIONS = [
     {
-        id: 'motivation',
+        id: 'whyJoin',
         question: 'Why do you want to join Formula Electric?',
         type: 'text-area',
         group: 2
@@ -151,13 +151,13 @@ export const SUBTEAM_QUESTIONS: Record<Subteam, Question[]> = {
     electronics: [
         {
             id: 'electronics-q1',
-            question: 'electronics Question 1',
+            question: 'Electronics Question 1',
             type: 'text-area',
             group: 1
         },
         {
             id: 'electronics-q2',
-            question: 'electronics Question 2',
+            question: 'Electronics Question 2',
             type: 'text-area',
             group: 1
         },
@@ -165,19 +165,19 @@ export const SUBTEAM_QUESTIONS: Record<Subteam, Question[]> = {
     powertrain: [
         {
             id: 'powertrain-q1',
-            question: 'powertrain Question 1',
+            question: 'Powertrain Question 1',
             type: 'text-area',
             group: 1
         },
         {
             id: 'powertrain-q2',
-            question: 'powertrain Question 2',
+            question: 'Powertrain Question 2',
             type: 'text-area',
             group: 1
         },
         {
             id: 'powertrain-q3',
-            question: 'powertrain Question 3',
+            question: 'Powertrain Question 3',
             type: 'text-area',
             group: 1
         },
@@ -185,13 +185,13 @@ export const SUBTEAM_QUESTIONS: Record<Subteam, Question[]> = {
     software: [
         {
             id: 'software-q1',
-            question: 'software Question 1',
+            question: 'Software Question 1',
             type: 'text-area',
             group: 1
         },
         {
             id: 'software-q2',
-            question: 'software Question 2',
+            question: 'Software Question 2',
             type: 'text-area',
             group: 1
         },
@@ -199,13 +199,13 @@ export const SUBTEAM_QUESTIONS: Record<Subteam, Question[]> = {
     suspension: [
         {
             id: 'suspension-q1',
-            question: 'suspension Question 1',
+            question: 'Suspension Question 1',
             type: 'text-area',
             group: 1
         },
         {
             id: 'suspension-q2',
-            question: 'suspension Question 2',
+            question: 'Suspension Question 2',
             type: 'text-area',
             group: 1
         },
@@ -213,13 +213,13 @@ export const SUBTEAM_QUESTIONS: Record<Subteam, Question[]> = {
     finance: [
         {
             id: 'finance-q1',
-            question: 'finance Question 1',
+            question: 'Finance Question 1',
             type: 'text-area',
             group: 1
         },
         {
             id: 'finance-q2',
-            question: 'finance Question 2',
+            question: 'Finance Question 2',
             type: 'text-area',
             group: 1
         },
@@ -227,13 +227,13 @@ export const SUBTEAM_QUESTIONS: Record<Subteam, Question[]> = {
     marketing: [
         {
             id: 'marketing-q1',
-            question: 'marketing Question 1',
+            question: 'Marketing Question 1',
             type: 'text-area',
             group: 1
         },
         {
             id: 'marketing-q2',
-            question: 'marketing Question 2',
+            question: 'Marketing Question 2',
             type: 'text-area',
             group: 1
         },
@@ -241,13 +241,13 @@ export const SUBTEAM_QUESTIONS: Record<Subteam, Question[]> = {
     operations: [
         {
             id: 'operations-q1',
-            question: 'operations Question 1',
+            question: 'Operations Question 1',
             type: 'text-area',
             group: 1
         },
         {
             id: 'operations-q2',
-            question: 'operations Question 2',
+            question: 'Operations Question 2',
             type: 'text-area',
             group: 1
         },

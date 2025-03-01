@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
             grad_year: gradYear,
             generalResponses,
             subteamsApplied,
-            resume
+            resume: resumeUrl,
         } = requestData;
 
         if (!applicantId) {
@@ -33,7 +33,6 @@ export async function POST(req: NextRequest) {
         }
 
         const gradYearInt = gradYear ? parseInt(gradYear, 10) : null;
-        const resumeUrl = resume?.name || null;
 
         // fetch subteam IDs based on their names and create mapping
         const subteamNames = Object.keys(subteamsApplied);

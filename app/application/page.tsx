@@ -264,8 +264,25 @@ const ApplicationForm = () => {
 
     const handleSubmit = async () => {
         const formattedFormData = formatFormData(formData);
+        console.log('Initial Data:', formattedFormData);
 
-        console.log('Submitted Data:', formattedFormData)
+        const fileData = new FormData();
+        fileData.append('file', formattedFormData.resume);
+
+        console.log(fileData);
+
+        const uploadResponse = await fetch('/api/file-upload', {
+            method: 'POST',
+            body: fileData,
+        });
+
+        const uploadResult = await uploadResponse.json();
+        if (!uploadResponse.ok) {
+            console.error("File upload failed:", uploadResult.error);
+            return;
+        }
+
+        formattedFormData.resume = uploadResult.url;
 
         const response = await fetch('/api/applicants/submission', {
             method: 'POST',
@@ -273,9 +290,13 @@ const ApplicationForm = () => {
             body: JSON.stringify(formattedFormData),
         });
 
-        console.log(response);
+        console.log('Submitted Data: ', response);
 
-        router.push('/application/submitted')
+        if (response.ok) {
+            router.push('/application/submitted');
+        } else {
+            console.error("Form submission failed:", await response.json());
+        }
     };
 
     const renderStepContent = () => {

@@ -1,4 +1,4 @@
-import { PrismaClient, Status, AdminRole, Subteams } from '@prisma/client';
+import { PrismaClient, Status, AdminRole } from '@prisma/client';
 
 const prisma = new PrismaClient()
 
@@ -14,19 +14,75 @@ async function main() {
     await prisma.subteam.deleteMany()
 
     // create subteams
+    const aerodynamicsTeam = await prisma.subteam.create({
+        data: {
+            name: 'AERODYNAMICS',
+            description: 'Aerodynamic design and testing of vehicle components'
+        }
+    })
+    
+    const batteryTeam = await prisma.subteam.create({
+        data: {
+            name: 'BATTERY',
+            description: 'Development and optimization of battery systems'
+        }
+    })
+    
+    const chassisTeam = await prisma.subteam.create({
+        data: {
+            name: 'CHASSIS',
+            description: 'Design and manufacturing of vehicle chassis'
+        }
+    })
+    
+    const electronicsTeam = await prisma.subteam.create({
+        data: {
+            name: 'ELECTRONICS',
+            description: 'Vehicle electronics and sensor systems'
+        }
+    })
+    
+    const powertrainTeam = await prisma.subteam.create({
+        data: {
+            name: 'POWERTRAIN',
+            description: 'Design and development of powertrain systems'
+        }
+    })
+    
     const softwareTeam = await prisma.subteam.create({
         data: {
-            name: Subteams.SOFTWARE,
+            name: 'SOFTWARE',
             description: 'Vehicle software and embedded systems'
         }
     })
-
-    const electricalTeam = await prisma.subteam.create({
+    
+    const suspensionTeam = await prisma.subteam.create({
         data: {
-            name: Subteams.ELECTRONICS,
-            description: 'Power systems and electronics'
+            name: 'SUSPENSION',
+            description: 'Design and testing of vehicle suspension systems'
         }
     })
+    
+    const financeTeam = await prisma.subteam.create({
+        data: {
+            name: 'FINANCE',
+            description: 'Financial planning and management for the team'
+        }
+    })
+    
+    const marketingTeam = await prisma.subteam.create({
+        data: {
+            name: 'MARKETING',
+            description: 'Brand development and marketing strategies'
+        }
+    })
+    
+    const operationsTeam = await prisma.subteam.create({
+        data: {
+            name: 'OPERATIONS',
+            description: 'Team logistics and operational coordination'
+        }
+    })    
 
     // create an admin
     const admin = await prisma.admin.create({
