@@ -9,8 +9,10 @@ import Image from 'next/image';
 import Star from "../../public/icons/star.svg";
 import Resume from "../../public/icons/resume.svg";
 import DownArrow from "../../public/icons/down-arrow.svg";
-import { getSubteamAbbreviation } from '@/utils/utils';
+import { getSubteamAbbreviation, getSubteamNameFromEnum } from '@/utils/utils';
 import { toast } from 'react-hot-toast';
+import Link from 'next/link';
+import { GENERAL_QUESTIONS, SUBTEAM_QUESTIONS } from '@/constants/questions';
 
 type ApplicantProps = {
     selectedEmail: string | null;
@@ -18,7 +20,7 @@ type ApplicantProps = {
 
 type DecisionType = 'accept' | 'comment' | 'reject' | 'override' | null;
 
-export default function Applicant({ selectedEmail }: ApplicantProps){
+export default function Applicant({ selectedEmail }: ApplicantProps) {
     const [activeTab, setActiveTab] = useState('info');
     const [showDropdown, setShowDropdown] = useState(false);
     const [showModal, setShowModal] = useState(false);
@@ -27,11 +29,11 @@ export default function Applicant({ selectedEmail }: ApplicantProps){
     const [isSubmitting, setIsSubmitting] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const modalRef = useRef<HTMLDivElement>(null);
-    const { 
-        data: applicant, 
-        isLoading, 
-        error, 
-        refetchApplicant 
+    const {
+        data: applicant,
+        isLoading,
+        error,
+        refetchApplicant
     } = useApplicantDetails(selectedEmail);
     const daysAgo = applicant ? formatDistanceToNow(new Date(applicant.appliedAt), { addSuffix: true }) : '';
     const subteams = applicant?.subteams
@@ -40,6 +42,7 @@ export default function Applicant({ selectedEmail }: ApplicantProps){
         .join('/');
     const { data: session, status } = useSession();
     const userName = session && session.user?.name;
+    const resumeLink = applicant && applicant.applications[0].resumeUrl;
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -60,9 +63,9 @@ export default function Applicant({ selectedEmail }: ApplicantProps){
 
     const handleSubmitDecision = async () => {
         if (!selectedEmail || !comment.trim() || !decision) return;
-        
+
         setIsSubmitting(true);
-        
+
         try {
             const response = await fetch('/api/applicants/interview-decisions', {
                 method: 'POST',
@@ -81,12 +84,12 @@ export default function Applicant({ selectedEmail }: ApplicantProps){
                 const errorData = await response.json();
                 throw new Error(errorData.error || 'Failed to submit decision');
             }
-            
+
             toast.success('Decision submitted successfully');
 
             setShowModal(false);
             setComment('');
-            
+
             refetchApplicant(); // refreshes with new decision
         } catch (error) {
             console.error('Error submitting decision:', error);
@@ -146,59 +149,61 @@ export default function Applicant({ selectedEmail }: ApplicantProps){
                     <div className={styles.tile}>{subteams}</div>
                     <div className={styles.tile}>{applicant?.gradYear}</div>
                     <button className={styles.resumeButton}>
-                        <Image src={Resume.src} width={21.6} height={12} alt='Resume'/>
+                        <Link href={resumeLink ?? "#"}>
+                            <Image src={Resume.src} width={21.6} height={12} alt='Resume' />
+                        </Link>
                     </button>
                     <h1 className={styles.headerSub}>{daysAgo}</h1>
-                    <button 
+                    <button
                         className={`${styles.starButton} ${applicant?.starred ? styles.starred : ''}`}
                         aria-label="Toggle star"
                     >
-                        <Image 
-                            src={Star.src} 
-                            width={15} 
-                            height={15} 
+                        <Image
+                            src={Star.src}
+                            width={15}
+                            height={15}
                             alt='Star'
                         />
                     </button>
                 </div>
                 <div className={styles.decisionWrapper} ref={dropdownRef}>
-                    <button 
+                    <button
                         className={styles.decisionButton}
                         onClick={() => setShowDropdown(!showDropdown)}
                     >
                         <span>Decision</span>
-                        <Image 
-                            src={DownArrow.src} 
-                            width={12} 
-                            height={12} 
+                        <Image
+                            src={DownArrow.src}
+                            width={12}
+                            height={12}
                             alt="Options"
                             className={`${styles.dropdownArrow} ${showDropdown ? styles.rotated : ''}`}
                         />
                     </button>
-                    
+
                     {showDropdown && (
                         <div className={styles.dropdown}>
-                            <button 
-                                className={`${styles.dropdownItem} ${styles.acceptItem}`} 
+                            <button
+                                className={`${styles.dropdownItem} ${styles.acceptItem}`}
                                 onClick={() => handleSelectDecision('accept')}
                             >
                                 Accept
                             </button>
-                            <button 
-                                className={`${styles.dropdownItem} ${styles.neutralItem}`} 
+                            <button
+                                className={`${styles.dropdownItem} ${styles.neutralItem}`}
                                 onClick={() => handleSelectDecision('comment')}
                             >
                                 Neutral
                             </button>
-                            <button 
-                                className={`${styles.dropdownItem} ${styles.rejectItem}`} 
+                            <button
+                                className={`${styles.dropdownItem} ${styles.rejectItem}`}
                                 onClick={() => handleSelectDecision('reject')}
                             >
                                 Reject
                             </button>
                             <div className={styles.dropdownDivider}></div>
-                            <button 
-                                className={`${styles.dropdownItem} ${styles.overrideItem}`} 
+                            <button
+                                className={`${styles.dropdownItem} ${styles.overrideItem}`}
                                 onClick={() => handleSelectDecision('override')}
                             >
                                 Override
@@ -209,23 +214,57 @@ export default function Applicant({ selectedEmail }: ApplicantProps){
             </header>
 
             <div className={styles.tabsContainer}>
-                <button 
+                <button
                     className={`${styles.tabButton} ${activeTab === 'info' ? styles.activeTab : ''}`}
                     onClick={() => setActiveTab('info')}
                 >
                     Info
                 </button>
-                <button 
+                <button
                     className={`${styles.tabButton} ${activeTab === 'resume' ? styles.activeTab : ''}`}
                     onClick={() => setActiveTab('resume')}
                 >
                     Resume
                 </button>
             </div>
-            
+
             <div className={styles.tabContent}>
                 {activeTab === 'info' && (
                     <div className={styles.infoTab}>
+                        <div className={styles.generalQuestionsSection}>
+                            <h3>General Questions</h3>
+                            {Object.entries(applicant?.applications[0].generalResponses).map(([key, value]) => {
+                                const questionObj = GENERAL_QUESTIONS.find(q => q.id === key);
+                                return (
+                                    <div key={key}>
+                                        {questionObj?.question}:
+                                        <div>{String(value)}</div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                        <div className={styles.subteamQuestionsSection}>
+                            <h3>Subteam Questions</h3>
+                            {applicant?.applications[0]?.subteamApps?.map((app, i) => {
+                                const subteamName = getSubteamNameFromEnum(app.subteam.name);
+                                const subteamQuestions = SUBTEAM_QUESTIONS[subteamName] || [];
+
+                                return (
+                                    <div key={i}>
+                                        <h4>{subteamName.charAt(0).toUpperCase() + subteamName.slice(1)} Application</h4>
+                                        {Object.entries(app.responses).map(([key, value]) => {
+                                            const questionObj = subteamQuestions.find(q => q.id === key);
+                                            return (
+                                                <div key={key}>
+                                                    {questionObj?.question}:
+                                                    <div>{String(value)}</div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )
+                            })}
+                        </div>
                         {applicant?.interviewDecisions && applicant.interviewDecisions.length > 0 && (
                             <div className={styles.decisionsSection}>
                                 <h3>Interview Decisions</h3>
@@ -248,11 +287,10 @@ export default function Applicant({ selectedEmail }: ApplicantProps){
                         )}
                     </div>
                 )}
-                
+
                 {activeTab === 'resume' && (
                     <div className={styles.resumeTab}>
-                        {/* todo: display embedded resume */}
-                        <p>Applicant resume will be embedded here</p>
+                        <iframe src={`${applicant?.applications[0]?.resumeUrl}#toolbar=0&view=fitH`} width="100%" height="600px" style={{ border: "none" }}></iframe>
                     </div>
                 )}
             </div>
@@ -279,7 +317,7 @@ export default function Applicant({ selectedEmail }: ApplicantProps){
                             />
                         </div>
                         <div className={styles.modalFooter}>
-                            <button 
+                            <button
                                 className={styles.cancelButton}
                                 onClick={() => {
                                     setComment('')
@@ -288,7 +326,7 @@ export default function Applicant({ selectedEmail }: ApplicantProps){
                             >
                                 Cancel
                             </button>
-                            <button 
+                            <button
                                 className={styles.submitButton}
                                 onClick={handleSubmitDecision}
                                 disabled={!comment.trim()}

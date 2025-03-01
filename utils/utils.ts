@@ -39,3 +39,21 @@ export const getSubteamEnum = (subteamName: string): string => {
 
     return abbreviationMap[subteamName] || subteamName;
 };
+
+export const getSubteamNameFromEnum = (subteamEnum: string): string => {
+    const abbreviationMap: Record<string, string> = {
+        'AERODYNAMICS': 'aerodynamics',
+        'BATTERY': 'battery',
+        'BUSINESS': 'business',
+        'DISTRIBUTED_BATTERY_MANAGEMENT': 'distributed battery management',
+        'ELECTRONICS': 'electronics',
+        'POWERTRAIN': 'powertrain',
+        'SOFTWARE': 'software',
+        'SUSPENSION': 'suspension',
+        'FINANCE': 'finance',
+        'MARKETING': 'marketing',
+        'OPERATIONS': 'operations',
+    };
+
+    return abbreviationMap[subteamEnum] || subteamEnum;
+};
