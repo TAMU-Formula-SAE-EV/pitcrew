@@ -94,7 +94,7 @@ body{
     margin-bottom: 24px;
 }
 
-.submitAnotherButton{ /* TODO */
+.submitAnotherButton {
     font-size: 14px;
     color: var(--light-grey);
     background: none;

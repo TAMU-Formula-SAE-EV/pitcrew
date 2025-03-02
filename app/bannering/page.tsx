@@ -17,7 +17,7 @@ interface FormErrors {
     email: number;
 }
 
-export default function Mobile() {
+export default function Bannering() {
     const { data: session, status } = useSession();
     const router = useRouter();
     const [formState, setFormState] = useState<'input' | 'success'>('input');

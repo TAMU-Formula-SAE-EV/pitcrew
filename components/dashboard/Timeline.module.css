@@ -30,3 +30,88 @@
     height: 2px;
     background: #2C6E49;
 }
+
+/* styles for operations popup */
+    /* def need to refactor */
+
+.tab_extra {
+    padding: .75rem 1rem;
+    position: fixed;
+    right: 33;
+    background: black;
+    border: none;
+    cursor: pointer;
+    color: #FFF;
+    font-family: 'Montserrat', sans-serif;
+    font-size: .9rem;
+}
+
+.popup_overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.25);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+  
+.popup {
+    display: flex;
+    flex-direction: column;
+    background: white;
+    width: 45%;
+    height: 55%;
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.popup_header {
+    display: flex;
+    width: 100%;
+    padding-left: 25px;
+}
+
+.popup_exit {
+    width: auto;
+    height: auto;
+    margin-left: auto;
+    background-color: #FFF;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.icon {
+    padding: 10px 10px;
+    border: none;
+    background-color: #FFF;
+    color: #000;
+    cursor: pointer;
+}
+
+.table {
+    display: flex;
+    overflow-y: scroll;
+    scrollbar-gutter: stable;
+    scrollbar-color:  #000 #FFF;
+    scrollbar-width: thin;
+    margin: 0px 25px 25px 25px;
+}
+
+.column {
+    width: 45%;
+}
+
+.header {
+    font-weight: bold;
+    margin-bottom: 10px;
+    font-size: 18px;
+}
+
+.item {
+    margin-bottom: 10px;
+}
