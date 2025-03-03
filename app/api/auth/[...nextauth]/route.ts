@@ -16,11 +16,13 @@ export const authOptions: NextAuthOptions = {
             if (account?.provider === 'google') {
                 const [netID, emailDomain] = user.email?.split('@') || []
 
-                if (emailDomain !== 'tamu.edu' && netID !== 'athulrsuresh') {
-                    return false;
-                }
+                // if (emailDomain !== 'tamu.edu') {
+                //     return false;
+                // }
 
-                if (adminNetIds?.includes(netID)) {
+                // temporarily, all tamu emails -> admins & personal emails -> applicants
+                if (emailDomain === 'tamu.edu') {
+                // if (adminNetIds?.includes(netID)) {
                     const existingAdmin = await prisma.admin.findUnique({
                         where: { email: user.email! },
                     });

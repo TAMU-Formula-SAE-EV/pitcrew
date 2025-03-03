@@ -324,38 +324,6 @@ const ApplicationForm = () => {
     }
 
     const handleNext = () => {
-        const currentFields =
-            activeStep === 0
-                ? CANDIDATE_INFO
-                : activeStep === 1
-                    ? GENERAL_QUESTIONS
-                    : activeStep === 2
-                        ? subteamQuestions
-                        : [];
-
-        let hasError = false;
-        const newErrors: { [key: string]: string } = {};
-
-        currentFields.forEach((field) => {
-            const fieldValue = formData[field.id];
-
-            if (!fieldValue || (typeof fieldValue === 'string' && fieldValue.trim() === '')) {
-                hasError = true;
-                newErrors[field.id] = 'This field is required.';
-            }
-
-            if (field.type === 'file' && !(fieldValue instanceof File)) {
-                hasError = true;
-                newErrors[field.id] = 'Please upload a valid file.';
-            }
-        });
-
-        setErrors(newErrors);
-
-        if (hasError) {
-            return;
-        }
-
         setActiveStep((prev) => Math.min(prev + 1, 3));
     };
 
@@ -412,7 +380,58 @@ const ApplicationForm = () => {
         };
     };
 
+    const validateAllFields = () => {
+        const newErrors: { [key: string]: string } = {};
+        const stepsWithErrors: number[] = [];
+
+        // Validate Candidate Info fields
+        CANDIDATE_INFO.forEach((field) => {
+            const fieldValue = formData[field.id];
+            if (!fieldValue || (typeof fieldValue === 'string' && fieldValue.trim() === '')) {
+                newErrors[field.id] = 'This field is required.';
+                stepsWithErrors.push(0)
+            }
+            if (field.type === 'file' && !(fieldValue instanceof File)) {
+                newErrors[field.id] = 'Please upload a valid file.';
+                stepsWithErrors.push(0);
+            }
+        });
+
+        GENERAL_QUESTIONS.forEach((field) => {
+            const fieldValue = formData[field.id];
+            if (!fieldValue || (typeof fieldValue === 'string' && fieldValue.trim() === '')) {
+                newErrors[field.id] = 'This field is required.';
+                stepsWithErrors.push(1);
+            }
+        });
+
+        subteamQuestions.forEach((field) => {
+            const fieldValue = formData[field.id];
+            if (!fieldValue || (typeof fieldValue === 'string' && fieldValue.trim() === '')) {
+                newErrors[field.id] = 'This field is required.';
+                stepsWithErrors.push(2);
+            }
+        });
+
+        setErrors(newErrors);
+
+        if (stepsWithErrors.length === 0) {
+            return null;
+        }
+
+        return Math.min(...stepsWithErrors);
+    };
+
     const handleSubmit = async () => {
+
+        const firstErrorStep = validateAllFields();
+
+        if (firstErrorStep !== null) {
+            // Navigate to the first step with errors
+            setActiveStep(firstErrorStep);
+            return;
+        }
+
         const formattedFormData = formatFormData(formData);
         console.log('Initial Data:', formattedFormData);
 
@@ -515,9 +534,17 @@ const ApplicationForm = () => {
         }
     };
 
+    const handleStepClick = (stepIndex: number) => {
+        setActiveStep(stepIndex);
+    };
+
     return (
         <div className={styles.container}>
-            <ApplicationSidebar activeStep={activeStep} lastSavedTime={lastSavedTime} />
+            <ApplicationSidebar
+                activeStep={activeStep}
+                lastSavedTime={lastSavedTime}
+                onStepClick={handleStepClick}
+            />
             <div className={styles.formContainer}>
                 <div className={styles.formGrid}>
                     {renderStepContent()}

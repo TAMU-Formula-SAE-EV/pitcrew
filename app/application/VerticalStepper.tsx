@@ -15,23 +15,24 @@ const steps = [
 
 interface StepperProps {
     activeStep: number;
+    onStepClick: (step: number) => void;
 }
 
-export default function VerticalLinearStepper({ activeStep }: StepperProps) {
+export default function VerticalLinearStepper({ activeStep, onStepClick }: StepperProps) {
     return (
         <Box sx={{ maxWidth: 400 }}>
             <Stepper
                 activeStep={activeStep}
                 orientation="vertical"
                 sx={{
-                    '& .MuiStepLabel-label': { color: 'black' },
+                    '& .MuiStepLabgel-label': { color: 'black' },
                     '& .MuiStepIcon-root': { color: 'black' },
                     '& .Mui-active .MuiStepIcon-root': { color: 'black' },
                     '& .Mui-completed .MuiStepIcon-root': { color: 'black' }
                 }}
             >
                 {steps.map((step, index) => (
-                    <Step key={step.label}>
+                    <Step key={step.label} onClick={() => onStepClick(index)} style={{cursor: 'pointer'}}>
                         <StepLabel>
                             {step.label}
                         </StepLabel>

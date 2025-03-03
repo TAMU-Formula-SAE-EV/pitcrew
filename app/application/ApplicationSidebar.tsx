@@ -6,9 +6,10 @@ import Image from 'next/image';
 interface SidebarProps {
   activeStep: number;
   lastSavedTime?: string;
+  onStepClick: (step: number) => void;
 }
 
-const ApplicationSidebar: React.FC<SidebarProps> = ({ activeStep, lastSavedTime }) => {
+const ApplicationSidebar: React.FC<SidebarProps> = ({ activeStep, lastSavedTime, onStepClick }) => {
 
   return (
     <div className={styles.sidebar}>
@@ -22,7 +23,7 @@ const ApplicationSidebar: React.FC<SidebarProps> = ({ activeStep, lastSavedTime 
       <p className={styles.description}>
         Please make sure to complete the full application to the best of your ability.
       </p>
-      <VerticalLinearStepper activeStep={activeStep} />
+      <VerticalLinearStepper activeStep={activeStep} onStepClick={onStepClick}/>
       <div className={styles.footer}>
         {lastSavedTime ? `Saved at ${lastSavedTime}` : 'Not saved yet'}
       </div>
