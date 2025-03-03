@@ -8,7 +8,9 @@ import { formatSubteamName } from './ApplicantList';
 import Image from 'next/image';
 import Star from "../../public/icons/star.svg";
 import Resume from "../../public/icons/resume.svg";
+import { AllResponses, DetailedApplicantWithResponses } from '@/types';
 import DownArrow from "../../public/icons/down-arrow.svg";
+import { GENERAL_QUESTIONS, SUBTEAM_QUESTIONS } from '@/constants/questions';
 import { getSubteamAbbreviation } from '@/utils/utils';
 import { toast } from 'react-hot-toast';
 
@@ -34,6 +36,7 @@ export default function Applicant({ selectedEmail }: ApplicantProps){
         error, 
         refetchApplicant 
     } = useApplicantDetails(selectedEmail);
+    const applicantWithResponses = applicant as DetailedApplicantWithResponses;
     const daysAgo = applicant ? formatDistanceToNow(new Date(applicant.appliedAt), { addSuffix: true }) : '';
     const subteams = applicant?.subteams
         ?.sort((a, b) => a.preferenceOrder - b.preferenceOrder)
@@ -216,50 +219,130 @@ export default function Applicant({ selectedEmail }: ApplicantProps){
                 <button 
                     className={`${styles.tabButton} ${activeTab === 'info' ? styles.activeTab : ''}`}
                     onClick={() => setActiveTab('info')}
-                >
+                    >
                     Info
                 </button>
                 <button 
                     className={`${styles.tabButton} ${activeTab === 'resume' ? styles.activeTab : ''}`}
                     onClick={() => setActiveTab('resume')}
-                >
+                    >
                     Resume
+                </button>
+                <button 
+                    className={`${styles.tabButton} ${activeTab === 'decisions' ? styles.activeTab : ''}`}
+                    onClick={() => setActiveTab('decisions')}
+                    >
+                    Decisions
                 </button>
             </div>
             
             <div className={styles.tabContent}>
                 {activeTab === 'info' && (
-                    <div className={styles.infoTab}>
-                        {applicant?.interviewDecisions && applicant.interviewDecisions.length > 0 && (
-                            <div className={styles.decisionsSection}>
-                                <h3>Interview Decisions</h3>
-                                <div className={styles.decisionsList}>
-                                    {applicant.interviewDecisions.map((decision) => (
-                                        <div key={decision.id} className={styles.decisionItem}>
-                                            <div className={styles.decisionHeader}>
-                                                <span className={`${styles.decisionType} ${styles[decision.type.toLowerCase()]}`}>
-                                                    {decision.type} {decision.subteam ? '/' : ''} {decision.subteam}
-                                                </span>
-                                                <span className={styles.decisionMeta}>
-                                                    by {decision.commenter} • {formatDistanceToNow(new Date(decision.createdAt), { addSuffix: true })}
-                                                </span>
-                                            </div>
-                                            <p className={styles.decisionComment}>{decision.comment}</p>
-                                        </div>
-                                    ))}
-                                </div>
+                <div className={styles.infoTab}>
+                    {/* General Questions Section */}
+                    <h3>General Questions</h3>
+                    <ul className={styles.questionsList}>
+                    {GENERAL_QUESTIONS.map((q, idx) => {
+                        let answer;
+                        if (q.id === 'first_choice' || q.id === 'second_choice') {
+                            return;
+                        } else {
+                        answer = applicantWithResponses.allResponses.generalResponses[q.id];
+                        }
+                        return (
+                            <div key={idx} className={styles.questionAndAnswer}>
+                                <h1>{idx + 1}. {q.question}</h1>
+                                <h2>{String(answer ?? "No response")}</h2>
                             </div>
-                        )}
-                    </div>
+                        );
+                    })}
+                    </ul>
+
+                    {/* Subteam Applications Section */}
+                    {[...applicantWithResponses.allResponses.subteamApplications]
+                    .sort((a, b) => {
+                        const aPref = applicant?.subteams.find(
+                        s => s.subteam.name.toLowerCase() === a.subteam.toLowerCase()
+                        )?.preferenceOrder ?? 999;
+                        const bPref = applicant?.subteams.find(
+                        s => s.subteam.name.toLowerCase() === b.subteam.toLowerCase()
+                        )?.preferenceOrder ?? 999;
+                        return aPref - bPref;
+                    })
+                    .map((app) => {
+                        const questions = SUBTEAM_QUESTIONS[app.subteam.toLowerCase()] || [];
+                        return (
+                        <div key={app.subteam} className={styles.subteamApplication}>
+                            <h4>{app.subteam} Questions</h4>
+                            <ul className={styles.questionsList}>
+                            {questions.map((q, index) => {
+                                const answer = app.responses[q.id];
+                                return (
+                                    <div key={index} className={styles.questionAndAnswer}>
+                                        <h1>{index + 1}. {q.question}</h1>
+                                        <h2>{String(answer ?? "No response")}</h2>
+                                    </div>
+                                );
+                            })}
+                            </ul>
+                            {app.fileUrls && app.fileUrls.length > 0 && (
+                            <div>
+                                <strong>Files:</strong>
+                                <ul>
+                                {app.fileUrls.map((url, index) => (
+                                    <li key={index}>
+                                    <a href={url} target="_blank" rel="noopener noreferrer">{url}</a>
+                                    </li>
+                                ))}
+                                </ul>
+                            </div>
+                            )}
+                        </div>
+                        );
+                    })}
+                </div>
                 )}
                 
                 {activeTab === 'resume' && (
                     <div className={styles.resumeTab}>
-                        {/* todo: display embedded resume */}
-                        <p>Applicant resume will be embedded here</p>
+                        {applicantWithResponses.allResponses.candidateInfo.resumeUrl ? (
+                        <iframe 
+                            src={`${applicantWithResponses.allResponses.candidateInfo.resumeUrl}#toolbar=0&navpanes=0&scrollbar=1`}
+                            title="Applicant Resume"
+                            style={{ width: '100%', height: '80vh', border: 'none' }}
+                        />
+                        ) : (
+                        <p>No resume available.</p>
+                        )}
                     </div>
                 )}
+
+                {activeTab === 'decisions' && (
+                <div className={styles.decisionsTab}>
+                    {applicant?.interviewDecisions && applicant.interviewDecisions.length > 0 && (
+                    <div className={styles.decisionsSection}>
+                        <h3>Interview Decisions</h3>
+                        <div className={styles.decisionsList}>
+                        {applicant.interviewDecisions.map((decision) => (
+                            <div key={decision.id} className={styles.decisionItem}>
+                            <div className={styles.decisionHeader}>
+                                <span className={`${styles.decisionType} ${styles[decision.type.toLowerCase()]}`}>
+                                {decision.type} {decision.subteam ? '/' : ''} {decision.subteam}
+                                </span>
+                                <span className={styles.decisionMeta}>
+                                by {decision.commenter} • {formatDistanceToNow(new Date(decision.createdAt), { addSuffix: true })}
+                                </span>
+                            </div>
+                            <p className={styles.decisionComment}>{decision.comment}</p>
+                            </div>
+                        ))}
+                        </div>
+                    </div>
+                    )}
+                </div>
+                )}
             </div>
+
             {/* comment modal */}
             {showModal && (
                 <div className={styles.modalOverlay}>
@@ -280,7 +363,7 @@ export default function Applicant({ selectedEmail }: ApplicantProps){
                                         <select id="subteamSelect" value={selectedSubteam} onChange={(e) => setSelectedSubteam(e.target.value)} className={styles.modalSelect}>
                                             <option value="">Select Subteam</option>
                                             {applicant?.subteams?.sort((a, b) => a.preferenceOrder - b.preferenceOrder).map((s) => (
-                                                <option key={s.subteam.id} value={s.subteam.name}>
+                                                <option key={s.subteam.name} value={s.subteam.name}>
                                                     {formatSubteamName(s.subteam.name)}
                                                 </option>
                                             ))}

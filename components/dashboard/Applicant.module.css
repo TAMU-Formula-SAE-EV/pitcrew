@@ -2,7 +2,7 @@
     background: white;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    height: 95%;
+    height: 78vh;
     width: 73%;
     overflow-y: scroll;
 }
@@ -406,12 +406,6 @@ h1.applicantName{
 
 /* decisions section */
 
-.decisionsSection {
-    margin-top: 2rem;
-    border-top: 1px solid #E3E3E3;
-    padding-top: 1.5rem;
-}
-
 .decisionsSection h3 {
     font-size: 1rem;
     font-weight: 500;
@@ -519,4 +513,38 @@ h1.applicantName{
 
 .modalSelect:focus {
     border-color: #3e6d4c;
+}
+
+.infoTab h3{
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: underline;
+}
+
+ul.questionsList{
+    list-style-type: none;
+    padding: 0;
+    margin-bottom: 3rem;
+}
+
+.questionAndAnswer h1{
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.questionAndAnswer h2{
+    font-weight: normal;
+    font-size: 1rem;
+    color: #767676;
+}
+
+.subteamApplication{
+    padding-top: 2rem;
+    border-top: 1px solid #E3E3E3;
+}
+
+.subteamApplication h4{
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: underline;
 }

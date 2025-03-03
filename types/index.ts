@@ -45,6 +45,7 @@ export type DetailedApplicant = {
     name: string;
     email: string;
     phone: string;
+    year: string;
     major: string;
     classification: string;
     gradYear: number;
@@ -89,3 +90,26 @@ export type ApplicantUpdate = {
 export type ApplicantSectionProps = {
     status: StatusType;
 };
+
+export interface AllResponses {
+        candidateInfo: {
+            name: string;
+            email: string;
+            phone: string;
+            major: string;
+            classification: string;
+            gradSem: string;
+            gradYear: number;
+            resumeUrl: string | null;
+        };
+        generalResponses: Record<string, any>;
+        subteamApplications: Array<{
+            subteam: string;
+            responses: Record<string, any>;
+            fileUrls: string[];
+        }>;
+}
+
+export interface DetailedApplicantWithResponses extends DetailedApplicant {
+    allResponses: AllResponses;
+}

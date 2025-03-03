@@ -16,7 +16,7 @@ export const authOptions: NextAuthOptions = {
             if (account?.provider === 'google') {
                 const [netID, emailDomain] = user.email?.split('@') || []
 
-                if (emailDomain !== 'tamu.edu' && netID !== 'vedarth31') {
+                if (emailDomain !== 'tamu.edu' && netID !== 'athulrsuresh') {
                     return false;
                 }
 
