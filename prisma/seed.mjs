@@ -163,7 +163,7 @@ async function main() {
                                     projectExperience: 'Built a solar-powered charger'
                                 },
                                 subteam: {
-                                    connect: { id: electricalTeam.id }
+                                    connect: { id: electronicsTeam.id }
                                 }
                             }
                         ]
@@ -174,7 +174,7 @@ async function main() {
                 create: [
                     {
                         subteam: {
-                            connect: { id: electricalTeam.id }
+                            connect: { id: electronicsTeam.id }
                         },
                         preferenceOrder: 1
                     },
@@ -227,7 +227,7 @@ async function main() {
                                     projectExperience: 'Built a solar-powered charger'
                                 },
                                 subteam: {
-                                    connect: { id: electricalTeam.id }
+                                    connect: { id: electronicsTeam.id }
                                 }
                             }
                         ]
@@ -244,7 +244,7 @@ async function main() {
                     },
                     {
                         subteam: {
-                            connect: { id: electricalTeam.id }
+                            connect: { id: electronicsTeam.id }
                         },
                         preferenceOrder: 2
                     }
