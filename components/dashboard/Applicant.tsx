@@ -27,6 +27,7 @@ export default function Applicant({ selectedEmail }: ApplicantProps){
     const [isSubmitting, setIsSubmitting] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const modalRef = useRef<HTMLDivElement>(null);
+    const [selectedSubteam, setSelectedSubteam] = useState('');
     const { 
         data: applicant, 
         isLoading, 
@@ -60,7 +61,8 @@ export default function Applicant({ selectedEmail }: ApplicantProps){
 
     const handleSubmitDecision = async () => {
         if (!selectedEmail || !comment.trim() || !decision) return;
-        
+        if (decision === 'accept' && !selectedSubteam) return;
+        if (decision === 'override' && !selectedSubteam) return;
         setIsSubmitting(true);
         
         try {
@@ -73,7 +75,8 @@ export default function Applicant({ selectedEmail }: ApplicantProps){
                     email: selectedEmail,
                     commenter: userName,
                     comment: comment.trim(),
-                    decision: decision
+                    decision: decision,
+                    selectedSubteam: (decision === 'accept' || decision === 'override') ? selectedSubteam : ''
                 }),
             });
 
@@ -86,6 +89,7 @@ export default function Applicant({ selectedEmail }: ApplicantProps){
 
             setShowModal(false);
             setComment('');
+            setSelectedSubteam('');
             
             refetchApplicant(); // refreshes with new decision
         } catch (error) {
@@ -234,7 +238,7 @@ export default function Applicant({ selectedEmail }: ApplicantProps){
                                         <div key={decision.id} className={styles.decisionItem}>
                                             <div className={styles.decisionHeader}>
                                                 <span className={`${styles.decisionType} ${styles[decision.type.toLowerCase()]}`}>
-                                                    {decision.type}
+                                                    {decision.type} {decision.subteam ? '/' : ''} {decision.subteam}
                                                 </span>
                                                 <span className={styles.decisionMeta}>
                                                     by {decision.commenter} • {formatDistanceToNow(new Date(decision.createdAt), { addSuffix: true })}
@@ -269,6 +273,21 @@ export default function Applicant({ selectedEmail }: ApplicantProps){
                             </h2>
                         </div>
                         <div className={styles.modalBody}>
+                            {
+                                (decision == 'accept' || decision == 'override') && (
+                                    <div className={styles.modalField}>
+                                        <label htmlFor="subteamSelect">Which subteam should this applicant join?</label>
+                                        <select id="subteamSelect" value={selectedSubteam} onChange={(e) => setSelectedSubteam(e.target.value)} className={styles.modalSelect}>
+                                            <option value="">Select Subteam</option>
+                                            {applicant?.subteams?.sort((a, b) => a.preferenceOrder - b.preferenceOrder).map((s) => (
+                                                <option key={s.subteam.id} value={s.subteam.name}>
+                                                    {formatSubteamName(s.subteam.name)}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                )
+                            }
                             <textarea
                                 className={styles.commentTextarea}
                                 placeholder="Enter a brief explanation of your decision..."
@@ -283,6 +302,7 @@ export default function Applicant({ selectedEmail }: ApplicantProps){
                                 className={styles.cancelButton}
                                 onClick={() => {
                                     setComment('')
+                                    setSelectedSubteam('')
                                     setShowModal(false)
                                 }}
                             >

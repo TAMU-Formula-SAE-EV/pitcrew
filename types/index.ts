@@ -17,6 +17,7 @@ export type InterviewDecisionData = {
     type: DecisionType;
     comment: string;
     commenter: string;
+    subteam: string;
     createdAt: Date;
     updatedAt: Date;
 };

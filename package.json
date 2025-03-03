@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "seed": "node prisma/seed.mjs"
   },
   "dependencies": {
     "@azure/storage-blob": "^12.26.0",

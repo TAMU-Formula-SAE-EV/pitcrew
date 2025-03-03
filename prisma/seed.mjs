@@ -133,6 +133,7 @@ async function main() {
                 day: new Date('2024-02-15T14:00:00Z'),
                 location: 'Engineering Building Room 101',
                 notes: 'Strong candidate, good technical background',
+                subteam: Subteams.ELECTRONICS,
                 admins: {
                     create: {
                     admin: {

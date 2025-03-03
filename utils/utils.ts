@@ -17,3 +17,7 @@ export const getSubteamAbbreviation = (subteamName: string): string => {
 
     return abbreviationMap[subteamName] || subteamName;
 };
+
+export const reverseFormatSubteamName = (name: string) => {
+    return name.replace(/ /g, '_').toUpperCase();
+};  

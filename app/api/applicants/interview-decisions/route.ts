@@ -1,79 +1,88 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { DecisionType } from '@prisma/client';
+import { DecisionType, Subteams } from '@prisma/client';
+import { reverseFormatSubteamName } from '@/utils/utils';
 
 export async function POST(request: NextRequest) {
-    try {
-        // Parse request body
-        const body = await request.json();
-        const { email, commenter, comment, decision } = body;
+  try {
+    const body = await request.json();
+    const { email, commenter, comment, decision, selectedSubteam } = body;
+    if (!email || !commenter || !comment || !decision || !selectedSubteam) {
+      return NextResponse.json(
+        { error: 'Missing required fields' },
+        { status: 400 }
+      );
+    }
+    const properSubteam = reverseFormatSubteamName(selectedSubteam) as Subteams;
+    console.log('Update API: subteam:', properSubteam);
 
-        if (!email || !commenter || !comment || !decision) {
-            return NextResponse.json(
-                { error: 'Missing required fields' },
-                { status: 400 }
-            );
-        }
+    const applicant = await prisma.applicant.findUnique({ where: { email } });
+    if (!applicant) {
+      return NextResponse.json(
+        { error: 'Applicant not found' },
+        { status: 404 }
+      );
+    }
 
-        // Find the applicant
-        const applicant = await prisma.applicant.findUnique({
-            where: {
-                email: email
-            }
-        });
-
-        if (!applicant) {
-            return NextResponse.json(
-                { error: 'Applicant not found' },
-                { status: 404 }
-            );
-        }
-
-        // Map frontend decision type to database DecisionType
-        let decisionType;
-        switch (decision) {
-            case 'accept':
-                decisionType = 'ACCEPTED';
-                break;
-            case 'reject':
-                decisionType = 'REJECTED';
-                break;
-            case 'comment':
-                decisionType = 'NEUTRAL';
-                break;
-            case 'override':
-                decisionType = 'OVERRIDE';
-                break;
-            default:
-                return NextResponse.json(
-                    { error: 'Invalid decision type' },
-                    { status: 400 }
-                );
-        }
-
-        // Create the interview decision
-        const interviewDecision = await prisma.interviewDecision.create({
-            data: {
-                type: decisionType as DecisionType,
-                comment,
-                commenter,
-                applicant: {
-                    connect: {
-                        id: applicant.id
-                    }
-                }
-            }
-        });
-
-        return NextResponse.json({
-            success: true,
-            data: interviewDecision
-        });
-    } catch (error) {
-        console.error('Error creating interview decision:', error);
+    let decisionType: DecisionType;
+    switch (decision) {
+      case 'accept':
+        decisionType = 'ACCEPTED';
+        break;
+      case 'reject':
+        decisionType = 'REJECTED';
+        break;
+      case 'comment':
+        decisionType = 'NEUTRAL';
+        break;
+      case 'override':
+        decisionType = 'OVERRIDE';
+        break;
+      default:
         return NextResponse.json(
-            { error: 'Failed to create interview decision' },
-            { status: 500 }
+          { error: 'Invalid decision type' },
+          { status: 400 }
         );
     }
+
+    // create interview decision
+    const interviewDecision = await prisma.interviewDecision.create({
+      data: {
+        type: decisionType,
+        comment,
+        commenter,
+        subteam: properSubteam,
+        applicant: { connect: { id: applicant.id } },
+      },
+    });
+
+    // update applicant status as needed
+    if (decisionType === 'OVERRIDE') {
+      await prisma.applicant.update({
+        where: { id: applicant.id },
+        data: { status: 'INTERVIEWING' },
+      });
+    } else if (decisionType === 'ACCEPTED') {
+      const acceptanceCount = await prisma.interviewDecision.count({
+        where: {
+          applicantId: applicant.id,
+          subteam: { equals: properSubteam },
+          type: 'ACCEPTED',
+        },
+      });
+      if (acceptanceCount >= 3) {
+        await prisma.applicant.update({
+          where: { id: applicant.id },
+          data: { status: 'INTERVIEWING' },
+        });
+      }
+    }
+
+    // the Prisma middleware will send a NOTIFY event upon updating the applicant
+
+    return NextResponse.json({ success: true, data: interviewDecision });
+  } catch (error) {
+    console.error('Update API Error:', error);
+    return NextResponse.json({ error: 'Failed to update applicant' }, { status: 500 });
+  }
 }
