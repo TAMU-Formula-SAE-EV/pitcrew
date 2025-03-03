@@ -133,8 +133,132 @@ const GroupedFieldsRenderer = ({
     );
 };
 
-const ApplicationForm = () => {
+interface SavedFileMetadata {
+    type: 'file';
+    name: string;
+    size: number;
+    lastModified: number;
+    data?: string;
+}
 
+type SavedFormData = Record<string, string | null | SavedFileMetadata>;
+
+// saving form and file to local storage so data is preserved on reload
+const saveToLocalStorage = (formData: FormDataState, activeStep: number) => {
+    const dataToSave: SavedFormData = {};
+
+    const filePromises: Promise<void>[] = [];
+
+    Object.entries(formData).forEach(([key, value]) => {
+        if (value instanceof File) {
+            dataToSave[key] = {
+                type: 'file',
+                name: value.name,
+                size: value.size,
+                lastModified: value.lastModified
+            };
+
+            const filePromise = new Promise<void>((resolve) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    if (reader.result && typeof reader.result === 'string') {
+                        (dataToSave[key] as SavedFileMetadata).data = reader.result;
+                    }
+                    resolve();
+                };
+                reader.onerror = () => {
+                    console.error(`Failed to read file ${value.name}`);
+                    resolve();
+                };
+                reader.readAsDataURL(value);
+            });
+
+            filePromises.push(filePromise);
+        } else {
+            dataToSave[key] = value;
+        }
+    });
+
+    // wait for file conversions, then save to localStorage
+    Promise.all(filePromises).then(() => {
+        try {
+            localStorage.setItem('applicationFormData', JSON.stringify(dataToSave));
+            localStorage.setItem('applicationFormStep', activeStep.toString());
+        } catch (error) {
+            console.error('Failed to save to localStorage:', error);
+            // if file too large, try saving without file data
+            if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+                // remove file data and try again
+                Object.keys(dataToSave).forEach(key => {
+                    if ((dataToSave[key] as SavedFileMetadata)?.type === 'file') {
+                        delete (dataToSave[key] as SavedFileMetadata).data;
+                    }
+                });
+                try {
+                    localStorage.setItem('applicationFormData', JSON.stringify(dataToSave));
+                    console.warn('Saved form data without file contents due to storage limitations. If you leave the page, you may have to reupload the file.');
+                } catch (innerError) {
+                    console.error('Failed to save even without file data:', innerError);
+                }
+            }
+        }
+    });
+};
+
+const loadFromLocalStorage = (): { formData: FormDataState, activeStep: number } => {
+    try {
+        const savedFormData = localStorage.getItem('applicationFormData');
+        const savedStep = localStorage.getItem('applicationFormStep');
+
+        const formData: FormDataState = {};
+
+        if (savedFormData) {
+            const parsedData = JSON.parse(savedFormData) as SavedFormData;
+
+            Object.entries(parsedData).forEach(([key, value]) => {
+                if (value && typeof value === 'object' && value.type === 'file' && value.data) {
+                    try {
+                        const base64Data = (value.data as string).split(',')[1];
+                        const binaryString = atob(base64Data);
+                        const bytes = new Uint8Array(binaryString.length);
+
+                        for (let i = 0; i < binaryString.length; i++) {
+                            bytes[i] = binaryString.charCodeAt(i);
+                        }
+
+                        const blob = new Blob([bytes]);
+
+                        const file = new File([blob], value.name, {
+                            type: 'application/pdf',
+                            lastModified: value.lastModified
+                        });
+
+                        formData[key] = file;
+                    } catch (err) {
+                        console.error(`Failed to reconstruct file for ${key}:`, err);
+                        // set to null if reconstruction fails
+                        formData[key] = null;
+                    }
+                } else {
+                    // for non-file values, store directly
+                    formData[key] = value as string | null;
+                }
+            });
+        }
+
+        return {
+            formData,
+            activeStep: savedStep ? parseInt(savedStep, 10) : 0
+        };
+    } catch (error) {
+        console.error('Failed to load from localStorage:', error);
+        return { formData: {}, activeStep: 0 };
+    }
+};
+
+const ApplicationForm = () => {
+    const [initialized, setInitialized] = useState(false);
+    const [lastSavedTime, setLastSavedTime] = useState<string>('');
     const [activeStep, setActiveStep] = useState(0);
     const [formData, setFormData] = useState<FormDataState>({});
     const [subteamQuestions, setSubteamQuestions] = useState<Question[]>([]);
@@ -144,8 +268,37 @@ const ApplicationForm = () => {
     const router = useRouter();
 
     useEffect(() => {
+        if (typeof window !== 'undefined' && !initialized) {
+            const { formData: savedData, activeStep: savedStep } = loadFromLocalStorage();
+            setFormData(savedData);
+            setActiveStep(savedStep);
+            setInitialized(true);
+        }
+    }, [initialized]);
+
+    const formatCurrentTime = () => {
+        const now = new Date();
+        const hours = now.getHours();
+        const minutes = now.getMinutes();
+        const ampm = hours >= 12 ? 'pm' : 'am';
+        const formattedHours = hours % 12 || 12;
+        const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+        return `${formattedHours}:${formattedMinutes}${ampm}`;
+    };
+
+    useEffect(() => {
+        if (initialized && Object.keys(formData).length > 0) {
+            saveToLocalStorage(formData, activeStep);
+            setLastSavedTime(formatCurrentTime());
+        }
+    }, [formData, activeStep, initialized]);
+
+    useEffect(() => {
         if (status !== 'loading' && !session || session?.user?.admin) {
             router.push('/');
+        }
+        if (session && session.user.status === 'APPLIED') {
+            router.push('/application/submitted');
         }
     }, [session, status, router]);
 
@@ -217,9 +370,85 @@ const ApplicationForm = () => {
         }));
     };
 
+    const formatFormData = (formData: FormDataState) => {
+        const { first_choice, second_choice, ...rest } = formData;
+
+        const subteamsApplied: Record<string, Record<string, string | number>> = {
+            [first_choice as string]: { preferenceOrder: 1 },
+            [second_choice as string]: { preferenceOrder: 2 }
+        };
+
+        Object.keys(formData).forEach((key) => {
+            if (key.startsWith(first_choice as string)) {
+                subteamsApplied[first_choice as string][key] = formData[key] as string;
+            } else if (key.startsWith(second_choice as string)) {
+                subteamsApplied[second_choice as string][key] = formData[key] as string;
+            }
+        });
+
+        const generalResponses: Record<string, string> = {};
+        const generalResponseIds = GENERAL_QUESTIONS
+            .map((q) => q.id)
+            .filter((id) => id !== "first_choice" && id !== "second_choice");
+
+        Object.keys(rest).forEach((key) => {
+            if (generalResponseIds.includes(key)) {
+                generalResponses[key] = rest[key] as string;
+                delete rest[key];
+            }
+        });
+
+        const cleanedRest = Object.fromEntries(
+            Object.entries(rest).filter(([key]) => !key.includes("-q"))
+        );
+
+        const applicantId = session.user?.id;
+
+        return {
+            applicantId,
+            subteamsApplied,
+            generalResponses,
+            ...cleanedRest,
+        };
+    };
+
     const handleSubmit = async () => {
-        console.log('Submitted Data:', formData)
-        router.push('/application/submitted')
+        const formattedFormData = formatFormData(formData);
+        console.log('Initial Data:', formattedFormData);
+
+        const fileData = new FormData();
+        fileData.append('file', formattedFormData.resume);
+
+        console.log(fileData);
+
+        const uploadResponse = await fetch('/api/file-upload', {
+            method: 'POST',
+            body: fileData,
+        });
+
+        const uploadResult = await uploadResponse.json();
+        if (!uploadResponse.ok) {
+            console.error("File upload failed:", uploadResult.error);
+            return;
+        }
+
+        formattedFormData.resume = uploadResult.url;
+
+        const response = await fetch('/api/applicants/submission', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formattedFormData),
+        });
+
+        console.log('Submitted Data: ', response);
+
+        if (response.ok) {
+            router.push('/application/submitted');
+            localStorage.removeItem('applicationFormData');
+            localStorage.removeItem('applicationFormStep');
+        } else {
+            console.error("Form submission failed:", await response.json());
+        }
     };
 
     const renderStepContent = () => {
@@ -288,7 +517,7 @@ const ApplicationForm = () => {
 
     return (
         <div className={styles.container}>
-            <ApplicationSidebar activeStep={activeStep} />
+            <ApplicationSidebar activeStep={activeStep} lastSavedTime={lastSavedTime} />
             <div className={styles.formContainer}>
                 <div className={styles.formGrid}>
                     {renderStepContent()}

@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
       select: {
         id: true,
         name: true,
-        year: true,
+        gradYear: true,
         email: true,
         starred: true,
         appliedAt: true,

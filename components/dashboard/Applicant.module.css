@@ -348,6 +348,62 @@ h1.applicantName{
     }
 }
 
+/* general questions section */
+
+.generalQuestionsSection h3 {
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    color: #333;
+    text-transform: uppercase;
+}
+
+.generalQuestionsSection div {
+    margin-bottom: 1rem;
+}
+
+.generalQuestionsSection div > div {
+    padding-left: 1rem;
+    font-size: 1rem;
+    color: #555;
+}
+
+/* subteam questions section */
+
+.subteamQuestionsSection {
+    margin-top: 2rem;
+    border-top: 1px solid #E3E3E3;
+    padding-top: 1.5rem;
+}
+
+.subteamQuestionsSection h3 {
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    color: #333;
+    text-transform: uppercase;
+}
+
+.subteamQuestionsSection > div {
+    margin-bottom: 2rem;
+}
+
+.subteamQuestionsSection div h4 {
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: #333;
+}
+
+.subteamQuestionsSection div > div {
+    margin-bottom: 0.75rem;
+}
+
+.subteamQuestionsSection div > div > div {
+    padding-left: 1rem;
+    font-size: 1rem;
+    color: #555;
+}
+
 /* decisions section */
 
 .decisionsSection {
@@ -361,6 +417,7 @@ h1.applicantName{
     font-weight: 500;
     margin-bottom: 1rem;
     color: #333;
+    text-transform: uppercase;
 }
 
 .decisionsList {

@@ -27,7 +27,7 @@ export type ApplicantPreviewData = {
     id: string;
     name: string;
     email: string;
-    year: number;
+    gradYear: number;
     status: Status;
     starred: boolean;
     approvalCount: number; // computed on server
@@ -46,8 +46,9 @@ export type DetailedApplicant = {
     email: string;
     phone: string;
     major: string;
-    year: number;
-    semester: number;
+    classification: string;
+    gradYear: number;
+    gradSem: number;
     status: Status;
     override: boolean;
     starred: boolean;

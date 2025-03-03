@@ -66,7 +66,7 @@ const ApplicantPreview = ({
             </div>
 
             <div className={styles.detailsRow}>
-                <span className={styles.badge}>{applicant.year}</span>
+                <span className={styles.badge}>{applicant.gradYear}</span>
                 {/* <div className={styles.approvalBadge}>
                     {[...Array(applicant.approvalCount)].map((_, i) => (
                         <Image 
