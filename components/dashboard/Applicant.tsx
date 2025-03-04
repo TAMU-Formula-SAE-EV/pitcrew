@@ -13,6 +13,7 @@ import DownArrow from "../../public/icons/down-arrow.svg";
 import { GENERAL_QUESTIONS, SUBTEAM_QUESTIONS } from '@/constants/questions';
 import { getSubteamAbbreviation } from '@/utils/utils';
 import { toast } from 'react-hot-toast';
+import Link from 'next/link';
 
 type ApplicantProps = {
     selectedEmail: string | null;
@@ -20,7 +21,7 @@ type ApplicantProps = {
 
 type DecisionType = 'accept' | 'comment' | 'reject' | 'override' | null;
 
-export default function Applicant({ selectedEmail }: ApplicantProps){
+export default function Applicant({ selectedEmail }: ApplicantProps) {
     const [activeTab, setActiveTab] = useState('info');
     const [showDropdown, setShowDropdown] = useState(false);
     const [showModal, setShowModal] = useState(false);
@@ -30,11 +31,11 @@ export default function Applicant({ selectedEmail }: ApplicantProps){
     const dropdownRef = useRef<HTMLDivElement>(null);
     const modalRef = useRef<HTMLDivElement>(null);
     const [selectedSubteam, setSelectedSubteam] = useState('');
-    const { 
-        data: applicant, 
-        isLoading, 
-        error, 
-        refetchApplicant 
+    const {
+        data: applicant,
+        isLoading,
+        error,
+        refetchApplicant
     } = useApplicantDetails(selectedEmail);
     const applicantWithResponses = applicant as DetailedApplicantWithResponses;
     const daysAgo = applicant ? formatDistanceToNow(new Date(applicant.appliedAt), { addSuffix: true }) : '';
@@ -67,7 +68,7 @@ export default function Applicant({ selectedEmail }: ApplicantProps){
         if (decision === 'accept' && !selectedSubteam) return;
         if (decision === 'override' && !selectedSubteam) return;
         setIsSubmitting(true);
-        
+
         try {
             const response = await fetch('/api/applicants/interview-decisions', {
                 method: 'POST',
@@ -87,13 +88,13 @@ export default function Applicant({ selectedEmail }: ApplicantProps){
                 const errorData = await response.json();
                 throw new Error(errorData.error || 'Failed to submit decision');
             }
-            
+
             toast.success('Decision submitted successfully');
 
             setShowModal(false);
             setComment('');
             setSelectedSubteam('');
-            
+
             refetchApplicant(); // refreshes with new decision
         } catch (error) {
             console.error('Error submitting decision:', error);
@@ -153,59 +154,61 @@ export default function Applicant({ selectedEmail }: ApplicantProps){
                     <div className={styles.tile}>{subteams}</div>
                     <div className={styles.tile}>{applicant?.year}</div>
                     <button className={styles.resumeButton}>
-                        <Image src={Resume.src} width={21.6} height={12} alt='Resume'/>
+                        <Link href={`${applicantWithResponses.allResponses.candidateInfo.resumeUrl}`}>
+                            <Image src={Resume.src} width={21.6} height={12} alt='Resume' />
+                        </Link>
                     </button>
                     <h1 className={styles.headerSub}>{daysAgo}</h1>
-                    <button 
+                    <button
                         className={`${styles.starButton} ${applicant?.starred ? styles.starred : ''}`}
                         aria-label="Toggle star"
                     >
-                        <Image 
-                            src={Star.src} 
-                            width={15} 
-                            height={15} 
+                        <Image
+                            src={Star.src}
+                            width={15}
+                            height={15}
                             alt='Star'
                         />
                     </button>
                 </div>
                 <div className={styles.decisionWrapper} ref={dropdownRef}>
-                    <button 
+                    <button
                         className={styles.decisionButton}
                         onClick={() => setShowDropdown(!showDropdown)}
                     >
                         <span>Decision</span>
-                        <Image 
-                            src={DownArrow.src} 
-                            width={12} 
-                            height={12} 
+                        <Image
+                            src={DownArrow.src}
+                            width={12}
+                            height={12}
                             alt="Options"
                             className={`${styles.dropdownArrow} ${showDropdown ? styles.rotated : ''}`}
                         />
                     </button>
-                    
+
                     {showDropdown && (
                         <div className={styles.dropdown}>
-                            <button 
-                                className={`${styles.dropdownItem} ${styles.acceptItem}`} 
+                            <button
+                                className={`${styles.dropdownItem} ${styles.acceptItem}`}
                                 onClick={() => handleSelectDecision('accept')}
                             >
                                 Accept
                             </button>
-                            <button 
-                                className={`${styles.dropdownItem} ${styles.neutralItem}`} 
+                            <button
+                                className={`${styles.dropdownItem} ${styles.neutralItem}`}
                                 onClick={() => handleSelectDecision('comment')}
                             >
                                 Neutral
                             </button>
-                            <button 
-                                className={`${styles.dropdownItem} ${styles.rejectItem}`} 
+                            <button
+                                className={`${styles.dropdownItem} ${styles.rejectItem}`}
                                 onClick={() => handleSelectDecision('reject')}
                             >
                                 Reject
                             </button>
                             <div className={styles.dropdownDivider}></div>
-                            <button 
-                                className={`${styles.dropdownItem} ${styles.overrideItem}`} 
+                            <button
+                                className={`${styles.dropdownItem} ${styles.overrideItem}`}
                                 onClick={() => handleSelectDecision('override')}
                             >
                                 Override
@@ -213,196 +216,198 @@ export default function Applicant({ selectedEmail }: ApplicantProps){
                         </div>
                     )}
                 </div>
-            </header>
+            </header >
 
             <div className={styles.tabsContainer}>
-                <button 
+                <button
                     className={`${styles.tabButton} ${activeTab === 'info' ? styles.activeTab : ''}`}
                     onClick={() => setActiveTab('info')}
-                    >
+                >
                     Info
                 </button>
-                <button 
+                <button
                     className={`${styles.tabButton} ${activeTab === 'resume' ? styles.activeTab : ''}`}
                     onClick={() => setActiveTab('resume')}
-                    >
+                >
                     Resume
                 </button>
-                <button 
+                <button
                     className={`${styles.tabButton} ${activeTab === 'decisions' ? styles.activeTab : ''}`}
                     onClick={() => setActiveTab('decisions')}
-                    >
+                >
                     Decisions
                 </button>
             </div>
-            
+
             <div className={styles.tabContent}>
                 {activeTab === 'info' && (
-                <div className={styles.infoTab}>
-                    {/* General Questions Section */}
-                    <h3>General Questions</h3>
-                    <ul className={styles.questionsList}>
-                    {GENERAL_QUESTIONS.map((q, idx) => {
-                        let answer;
-                        if (q.id === 'first_choice' || q.id === 'second_choice') {
-                            return;
-                        } else {
-                        answer = applicantWithResponses.allResponses.generalResponses[q.id];
-                        }
-                        return (
-                            <div key={idx} className={styles.questionAndAnswer}>
-                                <h1>{idx + 1}. {q.question}</h1>
-                                <h2>{String(answer ?? "No response")}</h2>
-                            </div>
-                        );
-                    })}
-                    </ul>
-
-                    {/* Subteam Applications Section */}
-                    {[...applicantWithResponses.allResponses.subteamApplications]
-                    .sort((a, b) => {
-                        const aPref = applicant?.subteams.find(
-                        s => s.subteam.name.toLowerCase() === a.subteam.toLowerCase()
-                        )?.preferenceOrder ?? 999;
-                        const bPref = applicant?.subteams.find(
-                        s => s.subteam.name.toLowerCase() === b.subteam.toLowerCase()
-                        )?.preferenceOrder ?? 999;
-                        return aPref - bPref;
-                    })
-                    .map((app) => {
-                        const questions = SUBTEAM_QUESTIONS[app.subteam.toLowerCase()] || [];
-                        return (
-                        <div key={app.subteam} className={styles.subteamApplication}>
-                            <h4>{app.subteam} Questions</h4>
-                            <ul className={styles.questionsList}>
-                            {questions.map((q, index) => {
-                                const answer = app.responses[q.id];
+                    <div className={styles.infoTab}>
+                        {/* General Questions Section */}
+                        <h3>General Questions</h3>
+                        <ul className={styles.questionsList}>
+                            {GENERAL_QUESTIONS.map((q, idx) => {
+                                let answer;
+                                if (q.id === 'first_choice' || q.id === 'second_choice') {
+                                    return;
+                                } else {
+                                    answer = applicantWithResponses.allResponses.generalResponses[q.id];
+                                }
                                 return (
-                                    <div key={index} className={styles.questionAndAnswer}>
-                                        <h1>{index + 1}. {q.question}</h1>
+                                    <div key={idx} className={styles.questionAndAnswer}>
+                                        <h1>{idx + 1}. {q.question}</h1>
                                         <h2>{String(answer ?? "No response")}</h2>
                                     </div>
                                 );
                             })}
-                            </ul>
-                            {app.fileUrls && app.fileUrls.length > 0 && (
-                            <div>
-                                <strong>Files:</strong>
-                                <ul>
-                                {app.fileUrls.map((url, index) => (
-                                    <li key={index}>
-                                    <a href={url} target="_blank" rel="noopener noreferrer">{url}</a>
-                                    </li>
-                                ))}
-                                </ul>
-                            </div>
-                            )}
-                        </div>
-                        );
-                    })}
-                </div>
+                        </ul>
+
+                        {/* Subteam Applications Section */}
+                        {[...applicantWithResponses.allResponses.subteamApplications]
+                            .sort((a, b) => {
+                                const aPref = applicant?.subteams.find(
+                                    s => s.subteam.name.toLowerCase() === a.subteam.toLowerCase()
+                                )?.preferenceOrder ?? 999;
+                                const bPref = applicant?.subteams.find(
+                                    s => s.subteam.name.toLowerCase() === b.subteam.toLowerCase()
+                                )?.preferenceOrder ?? 999;
+                                return aPref - bPref;
+                            })
+                            .map((app) => {
+                                const questions = SUBTEAM_QUESTIONS[app.subteam.toLowerCase()] || [];
+                                return (
+                                    <div key={app.subteam} className={styles.subteamApplication}>
+                                        <h4>{app.subteam} Questions</h4>
+                                        <ul className={styles.questionsList}>
+                                            {questions.map((q, index) => {
+                                                const answer = app.responses[q.id];
+                                                return (
+                                                    <div key={index} className={styles.questionAndAnswer}>
+                                                        <h1>{index + 1}. {q.question}</h1>
+                                                        <h2>{String(answer ?? "No response")}</h2>
+                                                    </div>
+                                                );
+                                            })}
+                                        </ul>
+                                        {app.fileUrls && app.fileUrls.length > 0 && (
+                                            <div>
+                                                <strong>Files:</strong>
+                                                <ul>
+                                                    {app.fileUrls.map((url, index) => (
+                                                        <li key={index}>
+                                                            <a href={url} target="_blank" rel="noopener noreferrer">{url}</a>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                    </div>
                 )}
-                
+
                 {activeTab === 'resume' && (
                     <div className={styles.resumeTab}>
                         {applicantWithResponses.allResponses.candidateInfo.resumeUrl ? (
-                        <iframe 
-                            src={`${applicantWithResponses.allResponses.candidateInfo.resumeUrl}#toolbar=0&navpanes=0&scrollbar=1`}
-                            title="Applicant Resume"
-                            style={{ width: '100%', height: '80vh', border: 'none' }}
-                        />
+                            <iframe
+                                src={`${applicantWithResponses.allResponses.candidateInfo.resumeUrl}#toolbar=0&navpanes=0&scrollbar=1`}
+                                title="Applicant Resume"
+                                style={{ width: '100%', height: '80vh', border: 'none' }}
+                            />
                         ) : (
-                        <p>No resume available.</p>
+                            <p>No resume available.</p>
                         )}
                     </div>
                 )}
 
                 {activeTab === 'decisions' && (
-                <div className={styles.decisionsTab}>
-                    {applicant?.interviewDecisions && applicant.interviewDecisions.length > 0 && (
-                    <div className={styles.decisionsSection}>
-                        <h3>Interview Decisions</h3>
-                        <div className={styles.decisionsList}>
-                        {applicant.interviewDecisions.map((decision) => (
-                            <div key={decision.id} className={styles.decisionItem}>
-                            <div className={styles.decisionHeader}>
-                                <span className={`${styles.decisionType} ${styles[decision.type.toLowerCase()]}`}>
-                                {decision.type} {decision.subteam ? '/' : ''} {decision.subteam}
-                                </span>
-                                <span className={styles.decisionMeta}>
-                                by {decision.commenter} • {formatDistanceToNow(new Date(decision.createdAt), { addSuffix: true })}
-                                </span>
+                    <div className={styles.decisionsTab}>
+                        {applicant?.interviewDecisions && applicant.interviewDecisions.length > 0 && (
+                            <div className={styles.decisionsSection}>
+                                <h3>Interview Decisions</h3>
+                                <div className={styles.decisionsList}>
+                                    {applicant.interviewDecisions.map((decision) => (
+                                        <div key={decision.id} className={styles.decisionItem}>
+                                            <div className={styles.decisionHeader}>
+                                                <span className={`${styles.decisionType} ${styles[decision.type.toLowerCase()]}`}>
+                                                    {decision.type} {decision.subteam ? '/' : ''} {decision.subteam}
+                                                </span>
+                                                <span className={styles.decisionMeta}>
+                                                    by {decision.commenter} • {formatDistanceToNow(new Date(decision.createdAt), { addSuffix: true })}
+                                                </span>
+                                            </div>
+                                            <p className={styles.decisionComment}>{decision.comment}</p>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
-                            <p className={styles.decisionComment}>{decision.comment}</p>
-                            </div>
-                        ))}
-                        </div>
+                        )}
                     </div>
-                    )}
-                </div>
                 )}
             </div>
 
             {/* comment modal */}
-            {showModal && (
-                <div className={styles.modalOverlay}>
-                    <div className={styles.modal} ref={modalRef}>
-                        <div className={styles.modalHeader}>
-                            <h2>
-                                {decision === 'accept' && 'Why accept this applicant?'}
-                                {decision === 'comment' && 'What is your comment on this applicant?'}
-                                {decision === 'reject' && 'Why reject this applicant?'}
-                                {decision === 'override' && 'Reason for override'}
-                            </h2>
-                        </div>
-                        <div className={styles.modalBody}>
-                            {
-                                (decision == 'accept' || decision == 'override') && (
-                                    <div className={styles.modalField}>
-                                        <label htmlFor="subteamSelect">Which subteam should this applicant join?</label>
-                                        <select id="subteamSelect" value={selectedSubteam} onChange={(e) => setSelectedSubteam(e.target.value)} className={styles.modalSelect}>
-                                            <option value="">Select Subteam</option>
-                                            {applicant?.subteams?.sort((a, b) => a.preferenceOrder - b.preferenceOrder).map((s) => (
-                                                <option key={s.subteam.name} value={s.subteam.name}>
-                                                    {formatSubteamName(s.subteam.name)}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                )
-                            }
-                            <textarea
-                                className={styles.commentTextarea}
-                                placeholder="Enter a brief explanation of your decision..."
-                                value={comment}
-                                onChange={(e) => setComment(e.target.value)}
-                                rows={5}
-                                autoFocus
-                            />
-                        </div>
-                        <div className={styles.modalFooter}>
-                            <button 
-                                className={styles.cancelButton}
-                                onClick={() => {
-                                    setComment('')
-                                    setSelectedSubteam('')
-                                    setShowModal(false)
-                                }}
-                            >
-                                Cancel
-                            </button>
-                            <button 
-                                className={styles.submitButton}
-                                onClick={handleSubmitDecision}
-                                disabled={!comment.trim()}
-                            >
-                                Submit Decision
-                            </button>
+            {
+                showModal && (
+                    <div className={styles.modalOverlay}>
+                        <div className={styles.modal} ref={modalRef}>
+                            <div className={styles.modalHeader}>
+                                <h2>
+                                    {decision === 'accept' && 'Why accept this applicant?'}
+                                    {decision === 'comment' && 'What is your comment on this applicant?'}
+                                    {decision === 'reject' && 'Why reject this applicant?'}
+                                    {decision === 'override' && 'Reason for override'}
+                                </h2>
+                            </div>
+                            <div className={styles.modalBody}>
+                                {
+                                    (decision == 'accept' || decision == 'override') && (
+                                        <div className={styles.modalField}>
+                                            <label htmlFor="subteamSelect">Which subteam should this applicant join?</label>
+                                            <select id="subteamSelect" value={selectedSubteam} onChange={(e) => setSelectedSubteam(e.target.value)} className={styles.modalSelect}>
+                                                <option value="">Select Subteam</option>
+                                                {applicant?.subteams?.sort((a, b) => a.preferenceOrder - b.preferenceOrder).map((s) => (
+                                                    <option key={s.subteam.name} value={s.subteam.name}>
+                                                        {formatSubteamName(s.subteam.name)}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    )
+                                }
+                                <textarea
+                                    className={styles.commentTextarea}
+                                    placeholder="Enter a brief explanation of your decision..."
+                                    value={comment}
+                                    onChange={(e) => setComment(e.target.value)}
+                                    rows={5}
+                                    autoFocus
+                                />
+                            </div>
+                            <div className={styles.modalFooter}>
+                                <button
+                                    className={styles.cancelButton}
+                                    onClick={() => {
+                                        setComment('')
+                                        setSelectedSubteam('')
+                                        setShowModal(false)
+                                    }}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    className={styles.submitButton}
+                                    onClick={handleSubmitDecision}
+                                    disabled={!comment.trim()}
+                                >
+                                    Submit Decision
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     );
 }
 
