@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { email, commenter, comment, decision, selectedSubteam } = body;
-    if (!email || !commenter || !comment || !decision || !selectedSubteam) {
+    if (!email || !commenter || !comment || !decision || ((decision === 'accept' || decision === 'override') && !selectedSubteam)) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -46,12 +46,12 @@ export async function POST(request: NextRequest) {
     }
 
     // create interview decision
-    const interviewDecision = await prisma.interviewDecision.create({
+    let interviewDecision = await prisma.interviewDecision.create({
       data: {
         type: decisionType,
         comment,
         commenter,
-        subteam: properSubteam,
+        subteam: (decisionType === 'ACCEPTED' || decisionType === 'OVERRIDE') ? properSubteam : Subteams.NULL,
         applicant: { connect: { id: applicant.id } },
       },
     });

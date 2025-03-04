@@ -330,7 +330,14 @@ export default function Applicant({ selectedEmail }: ApplicantProps) {
                                         <div key={decision.id} className={styles.decisionItem}>
                                             <div className={styles.decisionHeader}>
                                                 <span className={`${styles.decisionType} ${styles[decision.type.toLowerCase()]}`}>
-                                                    {decision.type} {decision.subteam ? '/' : ''} {decision.subteam}
+                                                    {decision.type}
+                                                    {decision.subteam !== 'NULL' && (
+                                                        <>
+                                                            
+                                                            {decision.subteam ? ' / ' : ''}
+                                                            {decision.subteam}
+                                                        </>
+                                                    )}
                                                 </span>
                                                 <span className={styles.decisionMeta}>
                                                     by {decision.commenter} • {formatDistanceToNow(new Date(decision.createdAt), { addSuffix: true })}
