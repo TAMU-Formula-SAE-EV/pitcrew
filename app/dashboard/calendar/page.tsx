@@ -229,7 +229,6 @@ const Calendar: React.FC = () => {
     "9:00 AM",
     "10:00 AM",
     "11:00 AM",
-    "11:51 AM",
     "12:00 PM",
     "1:00 PM",
     "2:00 PM",
