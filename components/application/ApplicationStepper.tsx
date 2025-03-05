@@ -18,7 +18,7 @@ interface StepperProps {
     onStepClick: (step: number) => void;
 }
 
-export default function VerticalLinearStepper({ activeStep, onStepClick }: StepperProps) {
+export default function ApplicationStepper({ activeStep, onStepClick }: StepperProps) {
     return (
         <Box sx={{ maxWidth: 400 }}>
             <Stepper

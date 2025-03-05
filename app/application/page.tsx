@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react';
 import styles from './ApplicationForm.module.css';
-import ApplicationSidebar from './ApplicationSidebar';
+import ApplicationSidebar from '@/components/application/ApplicationSidebar';
 import { CANDIDATE_INFO, GENERAL_QUESTIONS, Question, Subteam, SUBTEAM_QUESTIONS } from '@/constants/questions';
 import Select from 'react-select';
 import { useSession } from 'next-auth/react';
@@ -263,8 +263,9 @@ const ApplicationForm = () => {
     const [formData, setFormData] = useState<FormDataState>({});
     const [subteamQuestions, setSubteamQuestions] = useState<Question[]>([]);
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    const { data: session, status } = useSession();
+    const { data: session, status, update } = useSession();
     const router = useRouter();
 
     useEffect(() => {
@@ -423,12 +424,13 @@ const ApplicationForm = () => {
     };
 
     const handleSubmit = async () => {
+        setIsSubmitting(true);
 
         const firstErrorStep = validateAllFields();
-
         if (firstErrorStep !== null) {
             // Navigate to the first step with errors
             setActiveStep(firstErrorStep);
+            setIsSubmitting(false);
             return;
         }
 
@@ -437,7 +439,6 @@ const ApplicationForm = () => {
 
         const fileData = new FormData();
         fileData.append('file', formattedFormData.resume);
-
         console.log(fileData);
 
         const uploadResponse = await fetch('/api/file-upload', {
@@ -448,6 +449,7 @@ const ApplicationForm = () => {
         const uploadResult = await uploadResponse.json();
         if (!uploadResponse.ok) {
             console.error("File upload failed:", uploadResult.error);
+            setIsSubmitting(false);
             return;
         }
 
@@ -462,12 +464,14 @@ const ApplicationForm = () => {
         console.log('Submitted Data: ', response);
 
         if (response.ok) {
+            await update();
             router.push('/application/submitted');
             localStorage.removeItem('applicationFormData');
             localStorage.removeItem('applicationFormStep');
         } else {
             console.error("Form submission failed:", await response.json());
         }
+        setIsSubmitting(false);
     };
 
     const renderStepContent = () => {
@@ -492,12 +496,18 @@ const ApplicationForm = () => {
                 );
             case 2:
                 return (
-                    <GroupedFieldsRenderer
-                        fields={subteamQuestions}
-                        onInputChange={handleInputChange}
-                        formData={formData}
-                        errors={errors}
-                    />
+                    <>
+                        {(!formData.first_choice || !formData.second_choice) ? (
+                            <p> Please select all subteam preferences on the previous page. </p>
+                        ) : (
+                            <GroupedFieldsRenderer
+                                fields={subteamQuestions}
+                                onInputChange={handleInputChange}
+                                formData={formData}
+                                errors={errors}
+                            />
+                        )}
+                    </>
                 );
             case 3:
                 return (
@@ -540,31 +550,39 @@ const ApplicationForm = () => {
 
     return (
         <div className={styles.container}>
-            <ApplicationSidebar
-                activeStep={activeStep}
-                lastSavedTime={lastSavedTime}
-                onStepClick={handleStepClick}
-            />
-            <div className={styles.formContainer}>
-                <div className={styles.formGrid}>
-                    {renderStepContent()}
+            {isSubmitting ? (
+                <div>
+                    <p>Submitting...</p>
                 </div>
-                <div className={styles.buttons}>
-                    <button
-                        className={styles.backButton}
-                        onClick={handleBack}
-                        disabled={activeStep === 0}
-                    >
-                        Back
-                    </button>
-                    <button
-                        className={styles.nextButton}
-                        onClick={activeStep === 3 ? handleSubmit : handleNext}
-                    >
-                        {activeStep === 3 ? "Submit" : "Next Step"}
-                    </button>
-                </div>
-            </div>
+            ) : (
+                <>
+                    <ApplicationSidebar
+                        activeStep={activeStep}
+                        lastSavedTime={lastSavedTime}
+                        onStepClick={handleStepClick}
+                    />
+                    <div className={styles.formContainer}>
+                        <div className={styles.formGrid}>
+                            {renderStepContent()}
+                        </div>
+                        <div className={styles.buttons}>
+                            <button
+                                className={styles.backButton}
+                                onClick={handleBack}
+                                disabled={activeStep === 0}
+                            >
+                                Back
+                            </button>
+                            <button
+                                className={styles.nextButton}
+                                onClick={activeStep === 3 ? handleSubmit : handleNext}
+                            >
+                                {activeStep === 3 ? "Submit" : "Next Step"}
+                            </button>
+                        </div>
+                    </div>
+                </>
+            )}
         </div>
     );
 };
