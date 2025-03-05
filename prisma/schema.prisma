@@ -26,7 +26,7 @@ model Applicant {
 
   // relations
   applications       Application[]
-  interviews         Interview[]
+  interviews         Interview?
   subteams           ApplicantSubteam[]
   interviewDecisions InterviewDecision[]
 }
@@ -111,7 +111,8 @@ model ApplicantSubteam {
 
 model Interview {
   id        String   @id @default(cuid())
-  day       DateTime
+  date      DateTime
+  time      String
   location  String
   notes     String?
   subteam   Subteams
@@ -120,7 +121,7 @@ model Interview {
 
   // relations
   applicant   Applicant        @relation(fields: [applicantId], references: [id])
-  applicantId String
+  applicantId String @unique
   admins      InterviewAdmin[]
 }
 

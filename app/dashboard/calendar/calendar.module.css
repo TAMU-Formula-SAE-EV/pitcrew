@@ -1,0 +1,329 @@
+.calendarContainer {
+    font-family: 'Montserrat', sans-serif;
+    max-width: 100%;
+    margin: 0 auto;
+    padding-left: 2rem;
+    padding-top: 2rem;
+    color: #333;
+}
+
+.header {
+    padding: 15px 0;
+}
+
+.header h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.header p {
+    margin: 0;
+    font-size: .9rem;
+    color: #767676;
+    margin-bottom: 1rem;
+}
+
+.controls {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.controlGroup {
+    display: flex;
+    align-items: center;
+    background-color: #f0f7f0;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.controlButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    color: #006644;
+}
+
+.controlButton:hover {
+    background-color: rgba(0, 102, 68, 0.1);
+    border-radius: 4px;
+}
+
+.controlLabel {
+    margin: 0 10px;
+    font-weight: 500;
+    font-size: .8rem;
+    color: #006644;
+}
+
+.teamButton {
+    font-family: 'Montserrat', sans-serif;
+    background-color: #f0f7f0;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-size: .8rem;
+    font-weight: 500;
+    color: #006644;
+    cursor: pointer;
+}
+
+.teamButton:hover {
+    background-color: rgba(0, 102, 68, 0.1);
+}
+
+.calendar {
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.calendarHeader {
+    display: flex;
+    width: 100%;
+    background-color: #fafafa;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.headerCell {
+    flex: 1;
+    text-align: center;
+    padding: 15px 10px;
+    border-right: 1px solid #e0e0e0;
+}
+
+.headerCell:last-child {
+    border-right: none;
+}
+
+.timeHeader {
+    flex: 0 0 80px;
+    border-right: 1px solid #e0e0e0;
+}
+
+.dayHeader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.dayNumber {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 5px;
+}
+
+.dayName {
+    font-size: 14px;
+    color: #666;
+}
+
+.calendarBody {
+    position: relative;
+}
+
+.timeRow {
+    display: flex;
+    width: 100%;
+    border-bottom: 1px solid #e0e0e0;
+    min-height: 60px;
+    position: relative;
+}
+
+.timeRow:last-child {
+    border-bottom: none;
+}
+
+.timeCell {
+    flex: 0 0 80px;
+    text-align: right;
+    padding: 10px;
+    color: #666;
+    font-size: 13px;
+    border-right: 1px solid #e0e0e0;
+}
+
+.dayCell {
+    flex: 1;
+    position: relative;
+    padding: 4px;
+    border-right: 1px solid #e0e0e0;
+    min-height: 60px;
+}
+
+.dayCell:last-child {
+    border-right: none;
+}
+
+.event {
+    position: relative;
+    background-color: #e1f5fe;
+    border-left: 4px solid #4fc3f7;
+    padding: 8px 10px;
+    margin-bottom: 4px;
+    border-radius: 3px;
+    font-size: 13px;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.event:hover {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.eventDetailsPopup {
+    position: absolute;
+    z-index: 2000;
+}
+
+.eventDetailsContent {
+    font-family: 'Montserrat', sans-serif;
+    background: #fff;
+    padding: 20px 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 400px;
+}
+
+.eventDetailsContent h3 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: 1rem;
+    color: #3F3F3F;
+    font-weight: normal;
+}
+
+.detailItem {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.detailBullet {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 12px;
+}
+
+.detailText {
+    text-align: left;
+    font-size: 0.9rem;
+    color: black;
+}
+
+.detailText span{
+    color: #767676;
+    font-size: .7rem;
+}
+
+.subtitle {
+    color: #767676;
+    font-size: .7rem;
+    margin-top: 4px;
+}
+
+.green {
+    background-color: #4caf50;
+}
+
+.detailIcon {
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.interviewersCount {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.interviewer {
+    display: flex;
+    align-items: center;
+    margin-top: 4px;
+}
+
+.interviewerDot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.blue {
+    background-color: #2196f3;
+}
+
+.brown {
+    background-color: #795548;
+}
+
+.attendButton {
+    background-color: #000;
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-size: .9rem;
+    font-weight: normal;
+    cursor: pointer;
+    width: 50%;
+    margin-top: 20px;
+    transition: background-color 0.3s ease;
+}
+
+.attendButton:hover {
+    background-color: #333;
+}
+
+.currentDay {
+    background-color: rgba(44, 110, 73, 0.15);
+    color: #2C6E49;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.currentTimeMarker {
+    z-index: 100;
+    position: absolute;
+    left: 96.5px;
+    right: 0;
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+}
+
+.currentTimeCircle {
+    width: 8px;
+    height: 8px;
+    background-color: #2C6E49;
+    border-radius: 50%;
+}
+
+.currentTimeLine {
+    flex: 1;
+    height: 2px;
+    background-color: #2C6E49;
+}
