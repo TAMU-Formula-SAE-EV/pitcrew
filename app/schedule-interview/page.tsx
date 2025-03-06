@@ -7,6 +7,8 @@ import { useRouter } from 'next/navigation';
 import { DetailedApplicantWithResponses } from '@/types';
 import { useApplicantDetails } from '@/hooks/useApplicantDetails';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import Link from 'next/link';
+import { SUBTEAM_DESIGN_CHALLENGES } from '@/constants/questions';
 
 const ScheduleInterview = () => {
     const [activeStep, setActiveStep] = useState(0);
@@ -36,6 +38,7 @@ const ScheduleInterview = () => {
         data: applicant,
         isLoading,
         error,
+        refetchApplicant
     } = useApplicantDetails(session?.user?.email ?? '');
     const applicantWithResponses = applicant as DetailedApplicantWithResponses;
 
@@ -49,7 +52,10 @@ const ScheduleInterview = () => {
         if (session && session.user.status !== 'INTERVIEWING') {
             router.push('/');
         }
-    }, [session, status, router]);
+        if (applicantWithResponses?.interviews) {
+            setActiveStep(1);
+        }
+    }, [session, status, router, applicantWithResponses]);
 
     if (status === 'loading') {
         return <p>Loading...</p>;
@@ -76,6 +82,7 @@ const ScheduleInterview = () => {
     }
 
     const subteam = applicantWithResponses?.selectedSubteam;
+    const designChallengeLink = SUBTEAM_DESIGN_CHALLENGES[subteam.toLowerCase()];
 
     const handleNext = () => {
         setActiveStep((prev) => Math.min(prev + 1, 1));
@@ -121,6 +128,7 @@ const ScheduleInterview = () => {
 
             if (response.ok) {
                 handleNext();
+                refetchApplicant();
             } else {
                 console.error("Form submission failed");
             }
@@ -207,15 +215,17 @@ const ScheduleInterview = () => {
 
                         <div className={styles.designContainer}>
                             <h2 className={styles.heading}>Design Challenge</h2>
-                            <p className={styles.subteam}>Software Subteam</p>
+                            <p className={styles.subteam}>{subteam}</p>
                             <p className={styles.designChallenge}>
                                 As part of your interview process, you are asked to complete this design challenge.
                                 You will be asked about your solution at your interview, so make sure to bring it
                                 there. You do not need to submit this anywhere.
                             </p>
-                            <button className={styles.openChallenge}>
-                                Open Challenge
-                            </button>
+                            <Link href={designChallengeLink}>
+                                <button className={styles.openChallenge}>
+                                    Open Challenge
+                                </button>
+                            </Link>
                         </div>
 
                         <div className={styles.cancelInterview}>

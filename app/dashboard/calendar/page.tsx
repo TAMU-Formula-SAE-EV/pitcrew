@@ -76,26 +76,25 @@ const EventDetails: React.FC<EventDetailsProps> = ({ event, popupPosition, onClo
           </div>
         </div>
         <div className={styles.detailItem}>
-          <Image src={Clock.src} className={styles.detailIcon} alt="Location" height={15} width={15}/>
+          <Image src={Clock.src} className={styles.detailIcon} alt="Location" height={15} width={15} />
           <div className={styles.detailText}>
             {formattedDate} <br /> <span>{formattedStartTime} - {formattedEndTime}</span>
           </div>
         </div>
         <div className={styles.detailItem}>
-          <Image src={Location.src} className={styles.detailIcon} alt="Location" height={15} width={15}/>
+          <Image src={Location.src} className={styles.detailIcon} alt="Location" height={15} width={15} />
           <div className={styles.detailText}>{event.room || "No room"}</div>
         </div>
         <div className={styles.detailItem}>
-          <Image src={Interviewers.src} className={styles.detailIcon} alt="Location" height={15} width={15}/>
+          <Image src={Interviewers.src} className={styles.detailIcon} alt="Location" height={15} width={15} />
           <div className={styles.detailText}>
             <div>Interviewers</div>
             <div className={styles.subtitle}>{event.interviewers.length} people</div>
             {event.interviewers.map((interviewer, index) => (
               <div key={index} className={styles.interviewer}>
                 <div
-                  className={`${styles.interviewerDot} ${
-                    index === 0 ? styles.blue : styles.brown
-                  }`}
+                  className={`${styles.interviewerDot} ${index === 0 ? styles.blue : styles.brown
+                    }`}
                 ></div>
                 <div className={styles.subtitle}>{interviewer.name}</div>
               </div>
@@ -127,7 +126,7 @@ const Calendar: React.FC = () => {
   const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 });
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { interviews, isLoading } = useInterviews();
+  const { interviews, fetchInterviews, isLoading } = useInterviews();
   const [currentTime, setCurrentTime] = useState(new Date());
   const popupRef = useRef<HTMLDivElement>(null);
 
@@ -243,6 +242,29 @@ const Calendar: React.FC = () => {
     d1.getMonth() === d2.getMonth() &&
     d1.getFullYear() === d2.getFullYear();
 
+  const attendInterview = async (interviewId: string) => {
+    try {
+      const adminId = session.user.id;
+      const formData = { interviewId, adminId }
+
+      const response = await fetch('/api/interviews/admin-attend', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        console.log("Interview attended!");
+        fetchInterviews();
+        closeEventDetails();
+      } else {
+        console.error("Interview attendance submission failed");
+      }
+    } catch (error) {
+      console.error("Error submitting interview attendance:", error);
+    }
+  }
+
   return (
     <div className={styles.calendarContainer}>
       <div className={styles.header}>
@@ -354,7 +376,7 @@ const Calendar: React.FC = () => {
             event={selectedEvent}
             popupPosition={popupPosition}
             onClose={closeEventDetails}
-            onAttend={() => console.log("yippe")}
+            onAttend={() => attendInterview(selectedEvent.id)}
           />
         </div>
       )}
