@@ -4,6 +4,9 @@ import styles from './ScheduleInterview.module.css';
 import ApplicationSidebar from '../../components/schedule-interview/ScheduleInterviewSidebar';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { DetailedApplicantWithResponses } from '@/types';
+import { useApplicantDetails } from '@/hooks/useApplicantDetails';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const ScheduleInterview = () => {
     const [activeStep, setActiveStep] = useState(0);
@@ -29,6 +32,13 @@ const ScheduleInterview = () => {
     const { data: session, status } = useSession();
     const router = useRouter();
 
+    const {
+        data: applicant,
+        isLoading,
+        error,
+    } = useApplicantDetails(session?.user?.email ?? '');
+    const applicantWithResponses = applicant as DetailedApplicantWithResponses;
+
     useEffect(() => {
         if (status !== 'loading' && !session || session?.user?.admin) {
             router.push('/');
@@ -48,6 +58,24 @@ const ScheduleInterview = () => {
     if (!session) {
         return null;
     }
+
+    if (isLoading) {
+        return (
+            <div className={styles.container}>
+                <div className={styles.loadingState}>Loading applicant details...</div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className={styles.container}>
+                <div className={styles.errorState}>Error loading applicant details</div>
+            </div>
+        );
+    }
+
+    const subteam = applicantWithResponses?.selectedSubteam;
 
     const handleNext = () => {
         setActiveStep((prev) => Math.min(prev + 1, 1));
@@ -81,14 +109,15 @@ const ScheduleInterview = () => {
         setIsSubmitting(true);
 
         try {
-            // const response = await fetch('/api/schedule-interview', {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify(formData),
-            // });
-            // console.log('Submitted Data: ', response);
+            const applicantId = session.user.id;
+            const date = new Date('2025-03-07T00:00:00Z');
+            const formData = { selectedDate: date, selectedTime, location: 'ZACH', subteam, applicantId }
 
-            const response = { ok: true };
+            const response = await fetch('/api/interviews/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData),
+            });
 
             if (response.ok) {
                 handleNext();
@@ -108,7 +137,7 @@ const ScheduleInterview = () => {
                 return (
                     <div className={styles.contentContainer}>
                         <h2 className={styles.heading}>Schedule Interview</h2>
-                        <p className={styles.subteam}>Software Subteam</p>
+                        <p className={styles.subteam}>{subteam}</p>
 
                         <div className={styles.dates}>
                             {dates.map(({ day, date, slots, available }) => (
@@ -167,26 +196,28 @@ const ScheduleInterview = () => {
             case 1:
                 return (
                     <div className={styles.contentContainer}>
-                        <h2>Room assignment</h2>
-                        <p>
+                        <h2 className={styles.heading}>Room assignment</h2>
+                        <p className={styles.subteam}>
                             We&apos;ve received your preferred time! Please sit tight while we assign you to a room
                             for an interview. This process can take anywhere from a couple hours to several days.
                             Continue monitoring your inbox for an update and check back here for confirmation. If
                             you have any concerns, reach out to your contact or email tamuformulae@gmail.com. While
                             you wait, complete the design challenge below. Thank you!
                         </p>
-                        <div className={styles.designChallenge}>
-                            <h2>Design Challenge</h2>
-                            <p>Software Subteam</p>
-                            <p>
+
+                        <div className={styles.designContainer}>
+                            <h2 className={styles.heading}>Design Challenge</h2>
+                            <p className={styles.subteam}>Software Subteam</p>
+                            <p className={styles.designChallenge}>
                                 As part of your interview process, you are asked to complete this design challenge.
                                 You will be asked about your solution at your interview, so make sure to bring it
                                 there. You do not need to submit this anywhere.
                             </p>
-                            <button>
+                            <button className={styles.openChallenge}>
                                 Open Challenge
                             </button>
                         </div>
+
                         <div className={styles.cancelInterview}>
                             <div className={styles.cancelInterviewText}>
                                 <h4>Need to cancel?</h4>
@@ -196,7 +227,7 @@ const ScheduleInterview = () => {
                                 <u> Only do this if you absolutely cannot make any available time slots work. </u>
                                 {" "} Otherwise, select a time slot from above and submit your availability.
                             </div>
-                            <button className={styles.flagButton}>Flag Account</button>
+                            <button className={styles.cancelInterviewButton}>Cancel Interview</button>
                         </div>
                     </div>
                 );
@@ -246,13 +277,13 @@ const ScheduleInterview = () => {
                         <p className={styles.modalText}>
                             You have selected {" "}
                             <b>March {`${selectedDate} at ${selectedTime}`} for your interview.</b>.
-                            Once submitted, any rescheduling must be done through by emailing
+                            Once submitted, any rescheduling must be done through by emailing {" "}
                             <i>tamuformulae@gmail.com.</i> Are you sure you want to proceed?
                         </p>
                         <div className={styles.modalButtons}>
                             <button
                                 onClick={() => setIsConfirmationModalOpen(false)}
-                                className={styles.cancelButton}
+                                className={styles.cancelModalButton}
                             >
                                 No
                             </button>
@@ -270,4 +301,12 @@ const ScheduleInterview = () => {
     );
 };
 
-export default ScheduleInterview;
+const queryClient = new QueryClient();
+
+export default function ScheduleInterviewWrapper() {
+    return (
+        <QueryClientProvider client={queryClient}>
+            <ScheduleInterview />
+        </QueryClientProvider>
+    );
+}

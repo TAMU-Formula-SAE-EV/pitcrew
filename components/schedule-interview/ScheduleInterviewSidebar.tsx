@@ -25,12 +25,12 @@ const ApplicationSidebar: React.FC<SidebarProps> = ({ activeStep }) => {
       <ScheduleInterviewStepper activeStep={activeStep} />
       <div className={styles.additionalInfo}>
         <div>
-          <p> Application process questions? Email tamuformulae@gmail.com </p>
+          <p> Application process questions? </p>
           <p> Email tamuformulae@gmail.com </p>
         </div>
         <div>
           <p> Need tech support? </p>
-          <p> Email athulraj123@tamu.edu </p>
+          <p> Email tamuformulacs@gmail.com </p>
         </div>
       </div>
     </div >

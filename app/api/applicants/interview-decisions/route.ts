@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
       if (acceptanceCount >= 3) {
         await prisma.applicant.update({
           where: { id: applicant.id },
-          data: { status: 'INTERVIEWING' },
+          data: { selectedSubteam, status: 'INTERVIEWING' },
         });
       }
     }

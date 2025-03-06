@@ -371,7 +371,7 @@ const ApplicationForm = () => {
             Object.entries(rest).filter(([key]) => !key.includes("-q"))
         );
 
-        const applicantId = session.user?.id;
+        const applicantId = session.user.id;
 
         return {
             applicantId,

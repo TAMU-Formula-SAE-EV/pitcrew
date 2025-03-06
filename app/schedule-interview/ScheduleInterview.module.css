@@ -137,21 +137,16 @@
     margin-top: 4rem;
 }
 
-.noAvailabilityText {
+.noAvailabilityText, .cancelInterviewText {
     font-size: 0.8rem;
     color: gray;
 }
 
 .cancelInterview {
-    margin-top: 7rem;
+    margin-top: 4rem;
 }
 
-.cancelInterviewText {
-    font-size: 0.8rem;
-    color: gray;
-}
-
-.flagButton {
+.flagButton, .cancelInterviewButton {
     margin-top: 10px;
     padding: 10px;
     background-color: #FE5F55;
@@ -235,7 +230,7 @@
     gap: 20px;
 }
 
-.cancelButton,
+.cancelModalButton,
 .confirmButton {
     padding: 12px 24px;
     border-radius: 8px;
@@ -245,13 +240,13 @@
     transition: all 0.3s ease;
 }
 
-.cancelButton {
+.cancelModalButton {
     background-color: #f4f4f4;
     color: #333;
     border: 1px solid #ddd;
 }
 
-.cancelButton:hover {
+.cancelModalButton:hover {
     background-color: #f0f0f0;
 }
 
@@ -263,4 +258,31 @@
 
 .confirmButton:hover {
     background-color: #218838;
+}
+
+.designContainer {
+    margin-top: 2rem;
+}
+
+.designChallenge {
+    margin-top: 1rem;
+    padding: 1rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    background-color: #f9f9f9;
+    width: 60%;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.openChallenge {
+    padding: 0.75rem 1.5rem;
+    background-color: #3d704e;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 400;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
 }
