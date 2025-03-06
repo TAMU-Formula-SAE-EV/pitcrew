@@ -1,14 +1,8 @@
 .calendarContainer {
     font-family: 'Montserrat', sans-serif;
     max-width: 100%;
-    margin: 0 auto;
-    padding-left: 2rem;
-    padding-top: 2rem;
+    margin: 2rem;
     color: #333;
-}
-
-.header {
-    padding: 15px 0;
 }
 
 .header h2 {
@@ -19,7 +13,7 @@
 
 .header p {
     margin: 0;
-    font-size: .9rem;
+    font-size: 0.9rem;
     color: #767676;
     margin-bottom: 1rem;
 }
@@ -54,27 +48,39 @@
     border-radius: 4px;
 }
 
+.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .controlLabel {
     margin: 0 10px;
     font-weight: 500;
-    font-size: .8rem;
+    font-size: 0.8rem;
     color: #006644;
 }
 
 .teamButton {
     font-family: 'Montserrat', sans-serif;
-    background-color: #f0f7f0;
-    border: none;
+    background-color: transparent;
+    border: 2px solid #006644;
     padding: 8px 15px;
     border-radius: 5px;
-    font-size: .8rem;
+    font-size: 0.8rem;
     font-weight: 500;
     color: #006644;
     cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .teamButton:hover {
-    background-color: rgba(0, 102, 68, 0.1);
+    background-color: #006644;
+    color: #fff;
+}
+
+.teamButtonActive {
+    background-color: #006644;
+    color: #fff;
 }
 
 .calendar {
@@ -87,23 +93,21 @@
     display: flex;
     width: 100%;
     background-color: #fafafa;
-    border-bottom: 1px solid #e0e0e0;
+    border: 1px solid #e0e0e0;
 }
 
+/* Removed the original timeHeader cell from within calendarHeader */
+
 .headerCell {
-    flex: 1;
+    width: 11rem;
     text-align: center;
     padding: 15px 10px;
     border-right: 1px solid #e0e0e0;
+    box-sizing: border-box;
 }
 
 .headerCell:last-child {
     border-right: none;
-}
-
-.timeHeader {
-    flex: 0 0 80px;
-    border-right: 1px solid #e0e0e0;
 }
 
 .dayHeader {
@@ -131,35 +135,27 @@
 
 .calendarBody {
     position: relative;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #e0e0e0;
+    border-bottom: none;
+    border-top: none;
 }
 
 .timeRow {
+    height: 3.5rem;
     display: flex;
     width: 100%;
     border-bottom: 1px solid #e0e0e0;
-    max-height: 55px;
     position: relative;
-}
-
-.timeRow:last-child {
-    border-bottom: none;
-}
-
-.timeCell {
-    flex: 0 0 80px;
-    text-align: right;
-    padding: 10px;
-    color: #666;
-    font-size: 13px;
-    border-right: 1px solid #e0e0e0;
 }
 
 .dayCell {
-    flex: 1;
+    width: 11rem;
     position: relative;
     padding: 4px;
     border-right: 1px solid #e0e0e0;
-    min-height: 60px;
+    box-sizing: border-box;
 }
 
 .dayCell:last-child {
@@ -170,10 +166,11 @@
     position: relative;
     background-color: #e1f5fe;
     border-left: 4px solid #4fc3f7;
-    padding: 8px 10px;
+    padding: 5px 10px;
     margin-bottom: 4px;
     border-radius: 3px;
-    font-size: 13px;
+    font-weight: 500;
+    font-size: 0.7rem;
     cursor: pointer;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     overflow: hidden;
@@ -198,6 +195,7 @@
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     text-align: center;
     max-width: 400px;
+    width: 90%;
 }
 
 .eventDetailsContent h3 {
@@ -206,6 +204,18 @@
     font-size: 1rem;
     color: #3F3F3F;
     font-weight: normal;
+    display: inline-block;
+    position: relative;
+}
+
+.eventDetailsContent h3:after {
+    content: "";
+    display: block;
+    height: 3px;
+    width: 100%;
+    background-color: #4caf50;
+    margin: 8px auto 0;
+    border-radius: 2px;
 }
 
 .detailItem {
@@ -214,11 +224,22 @@
     margin-bottom: 16px;
 }
 
+.detailItemMultiple {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
+.detailItemMultiple .detailIcon {
+    transform: translateY(2px);
+}
+
 .detailBullet {
     width: 10px;
     height: 10px;
     border-radius: 50%;
     margin-right: 12px;
+    transform: translateX(2.5px);
 }
 
 .detailText {
@@ -227,14 +248,14 @@
     color: black;
 }
 
-.detailText span{
+.detailText span {
     color: #767676;
-    font-size: .7rem;
+    font-size: 0.7rem;
 }
 
 .subtitle {
     color: #767676;
-    font-size: .7rem;
+    font-size: 0.7rem;
     margin-top: 4px;
 }
 
@@ -259,6 +280,7 @@
     display: flex;
     align-items: center;
     margin-top: 4px;
+    margin-left: 12px;
 }
 
 .interviewerDot {
@@ -266,6 +288,7 @@
     height: 8px;
     border-radius: 50%;
     margin-right: 8px;
+    transform: translateY(2px);
 }
 
 .blue {
@@ -277,12 +300,13 @@
 }
 
 .attendButton {
+    font-family: 'Montserrat', sans-serif;
     background-color: #000;
     color: #fff;
     border: none;
     padding: 12px 24px;
     border-radius: 6px;
-    font-size: .9rem;
+    font-size: 0.9rem;
     font-weight: normal;
     cursor: pointer;
     width: 50%;
@@ -308,7 +332,7 @@
 .currentTimeMarker {
     z-index: 100;
     position: absolute;
-    left: 96.5px;
+    left: 0;
     right: 0;
     display: flex;
     align-items: center;
@@ -326,4 +350,35 @@
     flex: 1;
     height: 2px;
     background-color: #2C6E49;
+}
+
+.calendarWrapper {
+    display: flex;
+}
+
+.leftSide {
+    display: flex;
+    flex-direction: column;
+}
+
+.leftSide .timeColumn {
+    /* Offset by the header height so cells align with the calendar body */
+    margin-top: 45px;
+    display: flex;
+    flex-direction: column;
+}
+
+.leftSide .timeColumn .timeCell {
+    text-align: right;
+    padding: 10px;
+    color: #666;
+    font-size: 13px;
+    box-sizing: border-box;
+    height: 57px;
+}
+
+.rightSide {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }

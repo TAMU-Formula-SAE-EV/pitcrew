@@ -2,10 +2,9 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import styles from "./calendar.module.css";
 import { useInterviews } from "@/hooks/useInterviews";
-import { useRef } from "react";
 import Image from "next/image";
 import Clock from "@/public/icons/clock.svg";
 import Interviewers from "@/public/icons/interviewers.svg";
@@ -21,6 +20,28 @@ export interface Event {
   interviewers: { name: string; role?: string }[];
   color?: string;
 }
+
+// Define subteam abbreviations (max 4 letters)
+enum Subteams {
+  SOFTWARE = "SOFT",
+  DISTRIBUTED_BATTERY_MANAGEMENT = "DBAT",
+  CHASSIS = "CHAS",
+  ELECTRONICS = "ELEC",
+  OPERATIONS = "OPER",
+  SPONSOR_RELATIONS = "SPON",
+  MARKETING = "MRKT",
+  BUSINESS = "BUSN",
+  POWERTRAIN = "PWRT",
+  BATTERY = "BATT",
+  AERODYNAMICS = "AERO",
+  SUSPENSION = "SUSP",
+  FINANCE = "FINC",
+  NULL = ""
+}
+
+const getSubteamAbbr = (team: string): string => {
+  return Subteams[team as keyof typeof Subteams] || team.slice(0, 4).toUpperCase();
+};
 
 interface EventDetailsProps {
   event: Event | null;
@@ -58,12 +79,18 @@ const EventDetails: React.FC<EventDetailsProps> = ({ event, popupPosition, onClo
     })
     .toUpperCase();
 
+  let adjustedX = popupPosition.x;
+  const popupWidth = 400; // defined in CSS max-width
+  if (popupPosition.x + popupWidth / 2 > window.innerWidth) {
+    adjustedX = window.innerWidth - popupWidth / 2 - 10;
+  }
+
   return (
     <div
       className={styles.eventDetailsPopup}
       style={{
         top: popupPosition.y,
-        left: popupPosition.x,
+        left: adjustedX,
         transform: "translate(-50%, -50%)",
       }}
     >
@@ -72,21 +99,21 @@ const EventDetails: React.FC<EventDetailsProps> = ({ event, popupPosition, onClo
         <div className={styles.detailItem}>
           <div className={`${styles.detailBullet} ${styles.green}`}></div>
           <div className={styles.detailText}>
-            {event.applicant} / {event.team}
+            {event.applicant} / {getSubteamAbbr(event.team)}
           </div>
         </div>
-        <div className={styles.detailItem}>
-          <Image src={Clock.src} className={styles.detailIcon} alt="Location" height={15} width={15}/>
+        <div className={styles.detailItemMultiple}>
+          <Image src={Clock.src} className={styles.detailIcon} alt="Time" height={15} width={15} />
           <div className={styles.detailText}>
             {formattedDate} <br /> <span>{formattedStartTime} - {formattedEndTime}</span>
           </div>
         </div>
         <div className={styles.detailItem}>
-          <Image src={Location.src} className={styles.detailIcon} alt="Location" height={15} width={15}/>
+          <Image src={Location.src} className={styles.detailIcon} alt="Location" height={15} width={15} />
           <div className={styles.detailText}>{event.room || "No room"}</div>
         </div>
-        <div className={styles.detailItem}>
-          <Image src={Interviewers.src} className={styles.detailIcon} alt="Location" height={15} width={15}/>
+        <div className={styles.detailItemMultiple}>
+          <Image src={Interviewers.src} className={styles.detailIcon} alt="Interviewers" height={15} width={15} />
           <div className={styles.detailText}>
             <div>Interviewers</div>
             <div className={styles.subtitle}>{event.interviewers.length} people</div>
@@ -110,7 +137,6 @@ const EventDetails: React.FC<EventDetailsProps> = ({ event, popupPosition, onClo
   );
 };
 
-// Helper to convert a timeslot string (e.g. "10:00 AM") into a 24-hour number.
 const getHourFromTimeSlot = (timeStr: string): number | null => {
   const match = timeStr.match(/^(\d+):00\s*(AM|PM)$/i);
   if (!match) return null;
@@ -130,6 +156,14 @@ const Calendar: React.FC = () => {
   const { interviews, isLoading } = useInterviews();
   const [currentTime, setCurrentTime] = useState(new Date());
   const popupRef = useRef<HTMLDivElement>(null);
+  const [fullTeam, setFullTeam] = useState(false);
+
+  // Valid week range
+  const validStartDate = new Date("2025-03-13");
+  const validEndDate = new Date("2025-03-25");
+
+  const prevDisabled = currentWeek.getTime() <= validStartDate.getTime();
+  const nextDisabled = currentWeek.getTime() + 6 * 24 * 3600 * 1000 >= validEndDate.getTime();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -145,7 +179,6 @@ const Calendar: React.FC = () => {
     };
   }, [selectedEvent]);
 
-  // Update currentTime every second for smooth movement.
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
@@ -160,12 +193,10 @@ const Calendar: React.FC = () => {
   if (status === "loading" || isLoading) {
     return <p>Loading...</p>;
   }
-
   if (!session) {
     return null;
   }
 
-  // Get all dates for the current week.
   const getWeekDates = (date: Date) => {
     const result: Date[] = [];
     const day = date.getDay();
@@ -181,20 +212,26 @@ const Calendar: React.FC = () => {
   const weekDates = getWeekDates(currentWeek);
 
   const handlePrevWeek = () => {
+    if (prevDisabled) return;
     const newDate = new Date(currentWeek);
     newDate.setDate(newDate.getDate() - 7);
     setCurrentWeek(newDate);
   };
 
   const handleNextWeek = () => {
+    if (nextDisabled) return;
     const newDate = new Date(currentWeek);
     newDate.setDate(newDate.getDate() + 7);
     setCurrentWeek(newDate);
   };
 
-  // Capture mouse click coordinates when an event is clicked.
   const handleEventClick = (event: Event, e: React.MouseEvent) => {
-    setPopupPosition({ x: e.clientX, y: e.clientY });
+    let x = e.clientX;
+    const popupWidth = 400;
+    if (x + popupWidth / 2 > window.innerWidth) {
+      x = window.innerWidth - popupWidth / 2 - 10;
+    }
+    setPopupPosition({ x, y: e.clientY });
     setSelectedEvent(event);
   };
 
@@ -202,7 +239,6 @@ const Calendar: React.FC = () => {
     setSelectedEvent(null);
   };
 
-  // Filter events for the current week.
   const filteredEvents = interviews.filter((event: Event) => {
     const eventDate = new Date(event.date);
     return weekDates.some(
@@ -251,101 +287,114 @@ const Calendar: React.FC = () => {
         <div className={styles.controls}>
           <div className={styles.controlGroup}>
             <span className={styles.controlLabel}>Week</span>
-            <button className={styles.controlButton} onClick={handlePrevWeek}>
+            <button
+              className={`${styles.controlButton} ${prevDisabled ? styles.disabled : ""}`}
+              onClick={handlePrevWeek}
+              disabled={prevDisabled}
+            >
               <svg viewBox="0 0 24 24" width="16" height="16">
-                <path
-                  d="M15,6 L9,12 L15,18"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                />
+                <path d="M15,6 L9,12 L15,18" fill="none" stroke="currentColor" strokeWidth="2" />
               </svg>
             </button>
-            <button className={styles.controlButton} onClick={handleNextWeek}>
+            <button
+              className={`${styles.controlButton} ${nextDisabled ? styles.disabled : ""}`}
+              onClick={handleNextWeek}
+              disabled={nextDisabled}
+            >
               <svg viewBox="0 0 24 24" width="16" height="16">
-                <path
-                  d="M9,6 L15,12 L9,18"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                />
+                <path d="M9,6 L15,12 L9,18" fill="none" stroke="currentColor" strokeWidth="2" />
               </svg>
             </button>
           </div>
-          <button className={styles.teamButton}>Full Team</button>
+          <button
+            className={`${styles.teamButton} ${fullTeam ? styles.teamButtonActive : ""}`}
+            onClick={() => setFullTeam(!fullTeam)}
+          >
+            {fullTeam ? "Full Team: ON" : "Full Team: OFF"}
+          </button>
         </div>
       </div>
-      <div className={styles.calendar}>
-        <div className={styles.calendarHeader}>
-          <div className={`${styles.headerCell} ${styles.timeHeader}`}></div>
-          {weekDates.map((date, index) => (
-            <div key={index} className={`${styles.headerCell} ${styles.dayHeader}`}>
-              <div className={`${styles.dayNumber} ${isSameDay(date, new Date()) ? styles.currentDay : ""}`}>
-                {date.getDate()}
+      <div className={styles.calendarWrapper}>
+        <div className={styles.leftSide}>
+          <div className={styles.timeColumn}>
+            {timeSlots.map((time, index) => (
+              <div key={index} className={styles.timeCell}>
+                {time}
               </div>
-              <div className={styles.dayName}>
-                {date.toLocaleDateString("en-US", { weekday: "short" })}
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-        <div className={styles.calendarBody}>
-          {timeSlots.map((time, timeIndex) => {
-            const slotHour = getHourFromTimeSlot(time);
-            const isCurrentHourRow =
-              slotHour !== null && slotHour === currentTime.getHours();
-            return (
-              <div key={timeIndex} className={styles.timeRow}>
-                <div className={styles.timeCell}>{time}</div>
-                {weekDates.map((date, dayIndex) => (
-                  <div key={dayIndex} className={styles.dayCell}>
-                    {eventsByDay[dayIndex]
-                      .filter((event: Event) => event.time === time)
-                      .map((event, eventIndex) => {
-                        let bgColor = "#e1f5fe";
-                        let borderColor = "#4fc3f7";
-                        if (event.color === "red") {
-                          bgColor = "#ffebee";
-                          borderColor = "#ef9a9a";
-                        } else if (event.color === "purple") {
-                          bgColor = "#f3e5f5";
-                          borderColor = "#ce93d8";
-                        } else if (event.color === "brown") {
-                          bgColor = "#efebe9";
-                          borderColor = "#bcaaa4";
-                        } else if (event.color === "orange") {
-                          bgColor = "#fff3e0";
-                          borderColor = "#ffcc80";
-                        }
-                        return (
-                          <div
-                            key={eventIndex}
-                            className={styles.event}
-                            style={{
-                              backgroundColor: bgColor,
-                              borderLeftColor: borderColor,
-                              borderLeftWidth: "4px",
-                            }}
-                            onClick={(e) => handleEventClick(event, e)}
-                          >
-                            {event.applicant}
-                          </div>
-                        );
-                      })}
-                  </div>
-                ))}
-                {isCurrentHourRow && (
-                  <div
-                    className={styles.currentTimeMarker}
-                    style={{ top: `${(currentTime.getMinutes() / 60) * 100}%` }}
-                  >
-                    <div className={styles.currentTimeCircle}></div>
-                    <div className={styles.currentTimeLine}></div>
-                  </div>
-                )}
+        <div className={styles.rightSide}>
+          <div className={styles.calendarHeader}>
+            {weekDates.map((date, index) => (
+              <div key={index} className={`${styles.headerCell} ${styles.dayHeader}`}>
+                <div className={`${styles.dayNumber} ${isSameDay(date, new Date()) ? styles.currentDay : ""}`}>
+                  {date.getDate()}
+                </div>
+                <div className={styles.dayName}>
+                  {date.toLocaleDateString("en-US", { weekday: "short" })}
+                </div>
               </div>
-            );
-          })}
+            ))}
+          </div>
+          <div className={styles.calendarBody}>
+            {timeSlots.map((time, timeIndex) => {
+              const slotHour = getHourFromTimeSlot(time);
+              const isCurrentHourRow =
+                slotHour !== null && slotHour === currentTime.getHours();
+              return (
+                <div key={timeIndex} className={styles.timeRow}>
+                  {weekDates.map((date, dayIndex) => (
+                    <div key={dayIndex} className={styles.dayCell}>
+                      {eventsByDay[dayIndex]
+                        .filter((event: Event) => event.time === time)
+                        .map((event, eventIndex) => {
+                          let bgColor = "#e1f5fe";
+                          let borderColor = "#4fc3f7";
+                          if (event.color === "red") {
+                            bgColor = "#ffebee";
+                            borderColor = "#ef9a9a";
+                          } else if (event.color === "purple") {
+                            bgColor = "#f3e5f5";
+                            borderColor = "#ce93d8";
+                          } else if (event.color === "brown") {
+                            bgColor = "#efebe9";
+                            borderColor = "#bcaaa4";
+                          } else if (event.color === "orange") {
+                            bgColor = "#fff3e0";
+                            borderColor = "#ffcc80";
+                          }
+                          return (
+                            <div
+                              key={eventIndex}
+                              className={styles.event}
+                              style={{
+                                backgroundColor: bgColor,
+                                borderLeftColor: borderColor,
+                                borderLeftWidth: "4px",
+                                color: borderColor,
+                              }}
+                              onClick={(e) => handleEventClick(event, e)}
+                            >
+                              {event.applicant}
+                            </div>
+                          );
+                        })}
+                    </div>
+                  ))}
+                  {isCurrentHourRow && (
+                    <div
+                      className={styles.currentTimeMarker}
+                      style={{ top: `${(currentTime.getMinutes() / 60) * 100}%` }}
+                    >
+                      <div className={styles.currentTimeCircle}></div>
+                      <div className={styles.currentTimeLine}></div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
       {selectedEvent && (
