@@ -46,5 +46,5 @@ export const useInterviews = () => {
     };
   }, []);
 
-  return { interviews, isLoading };
+  return { interviews, fetchInterviews, isLoading };
 };

@@ -253,3 +253,16 @@ export const SUBTEAM_QUESTIONS: Record<Subteam, Question[]> = {
         },
     ]
 };
+
+export const SUBTEAM_DESIGN_CHALLENGES: Record<Subteam, string> = {
+    aerodynamics: 'https://www.google.com',
+    battery: 'https://www.yahoo.com',
+    chassis: 'https://www.youtube.com',
+    electronics: 'https://www.ebay.com',
+    powertrain: 'https://www.youtube.com',
+    software: 'https://www.apple.com',
+    suspension: 'https://www.hotmail.com',
+    finance: 'https://www.youtube.com',
+    marketing: 'https://www.youtube.com',
+    operations: 'https://www.youtube.com'
+};
