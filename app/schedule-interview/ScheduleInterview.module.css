@@ -1,0 +1,288 @@
+.container {
+    display: flex;
+    height: 85vh;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.formContainer {
+    flex: 1;
+    margin-top: 3rem;
+    padding: 50px 60px;
+    background: white;
+}
+
+.formGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.buttons {
+    display: flex;
+    width: auto;
+    gap: 20px;
+    justify-content: flex-end;
+    position: fixed;
+    bottom: 40px;
+    right: 40px;
+}
+
+.nextButton {
+    padding: 12px 24px;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 8px;
+    width: 150px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nextButton {
+    background: black;
+    color: white;
+}
+
+.contentContainer {
+    display: flex;
+    flex-direction: column;
+    max-width: 55rem;
+    margin: auto;
+}
+
+.heading {
+    font-size: 1rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.subteam {
+    font-size: 0.9rem;
+    color: gray;
+}
+
+.dates {
+    display: flex;
+    gap: 30px;
+    margin-top: 15px;
+}
+
+.dateCard {
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    flex: 1;
+}
+
+.dateCard.selected {
+    background-color: #d4edda;
+    border-color: #28a745;
+}
+
+.dateCard.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.day,
+.date {
+    font-weight: bold;
+}
+
+.slots {
+    font-size: 0.9rem;
+    color: gray;
+}
+
+.timeInfo {
+    margin-top: 2rem;
+    font-size: 0.9rem;
+}
+
+.times {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px;
+}
+
+.timeButton {
+    padding: 10px 18px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    background: white;
+}
+
+.timeButton.selectedTime {
+    background-color: #d4edda;
+    border-color: #28a745;
+}
+
+.submitButton {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: black;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.noAvailability {
+    margin-top: 4rem;
+}
+
+.noAvailabilityText, .cancelInterviewText {
+    font-size: 0.8rem;
+    color: gray;
+}
+
+.cancelInterview {
+    margin-top: 4rem;
+}
+
+.flagButton, .cancelInterviewButton {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #FE5F55;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.errorPlaceholder {
+    height: 1.5rem;
+    margin-top: 0.25rem;
+}
+
+.error {
+    color: red;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(5px);
+    overflow: hidden;
+}
+
+.modal {
+    background-color: white;
+    border-radius: 16px;
+    padding: 40px;
+    width: 90%;
+    max-width: 500px;
+    text-align: center;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    opacity: 0;
+    animation: modalAppear 0.3s ease-out forwards;
+}
+
+@keyframes modalAppear {
+    from {
+        transform: translate(-50%, -50%) scale(0.9);
+        opacity: 0;
+    }
+
+    to {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
+
+.modalTitle {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.modalText {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+.modalButtons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.cancelModalButton,
+.confirmButton {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.cancelModalButton {
+    background-color: #f4f4f4;
+    color: #333;
+    border: 1px solid #ddd;
+}
+
+.cancelModalButton:hover {
+    background-color: #f0f0f0;
+}
+
+.confirmButton {
+    background-color: #28a745;
+    color: white;
+    border: none;
+}
+
+.confirmButton:hover {
+    background-color: #218838;
+}
+
+.designContainer {
+    margin-top: 2rem;
+}
+
+.designChallenge {
+    margin-top: 1rem;
+    padding: 1rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    background-color: #f9f9f9;
+    width: 60%;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.openChallenge {
+    padding: 0.75rem 1.5rem;
+    background-color: #3d704e;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 400;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}

@@ -1,4 +1,4 @@
-import { Status, DecisionType } from '@prisma/client';
+import { Status, DecisionType, Subteams } from '@prisma/client';
 
 // frontend status type that matches the UI
 export type StatusType = 'Registration' | 'Applied' | 'Interviewing' | 'Offer' | 'Rejected';
@@ -50,6 +50,7 @@ export type DetailedApplicant = {
     classification: string;
     gradYear: number;
     gradSem: number;
+    selectedSubteam: Subteams;
     status: Status;
     override: boolean;
     starred: boolean;
@@ -92,22 +93,22 @@ export type ApplicantSectionProps = {
 };
 
 export interface AllResponses {
-        candidateInfo: {
-            name: string;
-            email: string;
-            phone: string;
-            major: string;
-            classification: string;
-            gradSem: string;
-            gradYear: number;
-            resumeUrl: string | null;
-        };
-        generalResponses: Record<string, any>;
-        subteamApplications: Array<{
-            subteam: string;
-            responses: Record<string, any>;
-            fileUrls: string[];
-        }>;
+    candidateInfo: {
+        name: string;
+        email: string;
+        phone: string;
+        major: string;
+        classification: string;
+        gradSem: string;
+        gradYear: number;
+        resumeUrl: string | null;
+    };
+    generalResponses: Record<string, any>;
+    subteamApplications: Array<{
+        subteam: string;
+        responses: Record<string, any>;
+        fileUrls: string[];
+    }>;
 }
 
 export interface DetailedApplicantWithResponses extends DetailedApplicant {

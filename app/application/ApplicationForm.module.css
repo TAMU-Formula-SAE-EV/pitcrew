@@ -1,7 +1,7 @@
 .container {
     display: flex;
-    height: 85vh;
-    font-family: Arial, sans-serif;
+    height: 100vh;
+    font-family: 'Montserrat', sans-serif;
 }
 
 .formContainer {
@@ -9,7 +9,7 @@
     margin-top: 3rem;
     padding: 50px 60px;
     background: white;
-    overflow-y: auto;
+    /* overflow-y: auto; */
 }
 
 .formGrid {
@@ -180,22 +180,4 @@
     color: red;
     font-size: 0.875rem;
     margin-top: 0.25rem;
-}
-
-.errorSummary {
-    background-color: #fff4f4;
-    border: 1px solid #ff6b6b;
-    border-radius: 4px;
-    padding: 15px;
-    margin-bottom: 20px;
-}
-
-.errorSummary h3 {
-    color: #d32f2f;
-    margin-top: 0;
-}
-
-.errorSummary ul {
-    margin-bottom: 0;
-    padding-left: 20px;
 }

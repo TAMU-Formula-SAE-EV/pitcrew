@@ -20,8 +20,10 @@ export default function Home() {
       } else {
         if (session.user.status === 'REGISTRATION') {
           router.push('/application');
-        } else {
+        } else if (session.user.status === 'APPLIED') {
           router.push('/application/submitted');
+        } else if (session.user.status === 'INTERVIEWING') {
+          router.push('/schedule-interview')
         }
       }
     }

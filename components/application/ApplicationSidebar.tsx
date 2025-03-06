@@ -1,6 +1,6 @@
 import styles from './ApplicationSidebar.module.css';
 import Logo from "@/public/icons/logo.svg";
-import VerticalLinearStepper from './VerticalStepper';
+import ApplicationStepper from './ApplicationStepper';
 import Image from 'next/image';
 
 interface SidebarProps {
@@ -23,7 +23,7 @@ const ApplicationSidebar: React.FC<SidebarProps> = ({ activeStep, lastSavedTime,
       <p className={styles.description}>
         Please make sure to complete the full application to the best of your ability.
       </p>
-      <VerticalLinearStepper activeStep={activeStep} onStepClick={onStepClick}/>
+      <ApplicationStepper activeStep={activeStep} onStepClick={onStepClick}/>
       <div className={styles.footer}>
         {lastSavedTime ? `Saved at ${lastSavedTime}` : 'Not saved yet'}
       </div>
