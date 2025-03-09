@@ -1,10 +1,25 @@
 import { useState, useEffect } from 'react';
 import { getEventSource } from '@/lib/sseClient';
-import { CanceledInterview, Interview } from '@prisma/client';
+
+interface CanceledInterviewEvent {
+  id: string;
+  date: Date;
+  time: string;
+  applicantId: string;
+  applicant: string;
+  team: string;
+  room: string;
+}
+interface InterviewEvent extends CanceledInterviewEvent {
+  interviewers: {
+    name: string;
+    role: string;
+  }[];
+}
 
 export const useInterviews = () => {
-  const [activeInterviews, setActiveInterviews] = useState<Interview[]>([]);
-  const [canceledInterviews, setCanceledInterviews] = useState<CanceledInterview[]>([]);
+  const [activeInterviews, setActiveInterviews] = useState<InterviewEvent[]>([]);
+  const [canceledInterviews, setCanceledInterviews] = useState<CanceledInterviewEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchInterviews = async () => {

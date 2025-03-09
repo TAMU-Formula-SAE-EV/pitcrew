@@ -51,7 +51,7 @@ const ScheduleInterview = () => {
     const publishInterview = true;
 
     useEffect(() => {
-        setInterviewers(applicantInterview?.interviewers.map((i) => i.name));
+        setInterviewers(applicantInterview?.interviewers?.map((i) => i.name) ?? null);
     }, [applicantInterview]);
 
     useEffect(() => {
