@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import {prisma} from '@/lib/prisma';
+import { prisma } from '@/lib/prisma';
 
 export async function GET() {
   try {
@@ -14,6 +14,7 @@ export async function GET() {
       id: interview.id,
       date: interview.date, // full date (as DateTime)
       time: interview.time, // interview time as string (e.g., "10:00 AM")
+      applicantId: interview.applicantId,
       applicant: interview.applicant.name,
       team: interview.subteam, // using "subteam" as team identifier
       room: interview.location,
@@ -25,6 +26,6 @@ export async function GET() {
 
     return NextResponse.json(events);
   } catch (error) {
-    return NextResponse.error();
+    return NextResponse.json({ "error": error }, { status: 500 });
   }
 }

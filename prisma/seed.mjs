@@ -186,7 +186,7 @@ async function main() {
             },
             ],
         },
-        interviews: {
+        interview: {
             create: {
             date: new Date('2025-03-07T00:00:00Z'),
             time: "2:00 PM",
@@ -252,7 +252,7 @@ async function main() {
             },
             ],
         },
-        interviews: {
+        interview: {
             create: {
             date: new Date('2025-03-08T00:00:00Z'),
             time: "3:00 PM",

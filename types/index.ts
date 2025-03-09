@@ -73,7 +73,7 @@ export type DetailedApplicant = {
             name: string;
         };
     }[];
-    interviews: {
+    interview: {
         day: Date;
         location: string;
         notes: string | null;

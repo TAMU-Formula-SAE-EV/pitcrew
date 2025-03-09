@@ -23,7 +23,7 @@ export async function GET(
           }
         },
         subteams: { include: { subteam: true } },
-        interviews: true,
+        interview: true,
         interviewDecisions: true
       }
     });
@@ -66,7 +66,7 @@ export async function GET(
     return NextResponse.json(response);
   } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to fetch applicant' },
+      { error: `Failed to fetch applicant: ${error}` },
       { status: 500 }
     );
   }

@@ -1,19 +1,27 @@
 import { useState, useEffect } from 'react';
 import { getEventSource } from '@/lib/sseClient';
+import { CanceledInterview, Interview } from '@prisma/client';
 
 export const useInterviews = () => {
-  const [interviews, setInterviews] = useState<any[]>([]);
+  const [activeInterviews, setActiveInterviews] = useState<Interview[]>([]);
+  const [canceledInterviews, setCanceledInterviews] = useState<CanceledInterview[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchInterviews = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('/api/interviews', { cache: 'no-store' });
-      if (!response.ok) {
-        throw new Error(`Error fetching interviews: ${response.statusText}`);
+      const activeResponse = await fetch('/api/interviews', { cache: 'no-store' });
+      const canceledResponse = await fetch('/api/interviews/canceled', { cache: 'no-store' });
+
+      if (!activeResponse.ok || !canceledResponse.ok) {
+        throw new Error(`Error fetching interviews: ${activeResponse.statusText} ${canceledResponse.statusText}`);
       }
-      const data = await response.json();
-      setInterviews(data);
+
+      const activeData = await activeResponse.json();
+      const canceledData = await canceledResponse.json();
+
+      setActiveInterviews(activeData);
+      setCanceledInterviews(canceledData);
     } catch (error) {
       console.error(error);
     } finally {
@@ -46,5 +54,5 @@ export const useInterviews = () => {
     };
   }, []);
 
-  return { interviews, fetchInterviews, isLoading };
+  return { activeInterviews, canceledInterviews, fetchInterviews, isLoading };
 };

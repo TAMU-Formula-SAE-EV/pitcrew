@@ -6,7 +6,7 @@
 
 .formContainer {
     flex: 1;
-    margin-top: 3rem;
+    margin-top: 2rem;
     padding: 50px 60px;
     background: white;
 }
@@ -60,6 +60,10 @@
 .subteam {
     font-size: 0.9rem;
     color: gray;
+}
+
+.roomAssignment {
+    margin-top: 4rem;
 }
 
 .dates {
@@ -134,20 +138,22 @@
 }
 
 .noAvailability {
-    margin-top: 4rem;
+    margin-top: 2rem;
 }
 
-.noAvailabilityText, .cancelInterviewText {
+.noAvailabilityText,
+.cancelInterviewText {
     font-size: 0.8rem;
     color: gray;
 }
 
 .cancelInterview {
-    margin-top: 4rem;
+    margin-top: 1rem;
 }
 
-.flagButton, .cancelInterviewButton {
-    margin-top: 10px;
+.flagButton,
+.cancelInterviewButton {
+    margin-top: 1rem;
     padding: 10px;
     background-color: #FE5F55;
     color: white;
@@ -231,7 +237,8 @@
 }
 
 .cancelModalButton,
-.confirmButton {
+.confirmButton,
+.cancelButton {
     padding: 12px 24px;
     border-radius: 8px;
     font-size: 1rem;
@@ -250,32 +257,45 @@
     background-color: #f0f0f0;
 }
 
-.confirmButton {
+.confirmButton,
+.cancelButton {
     background-color: #28a745;
     color: white;
     border: none;
 }
 
-.confirmButton:hover {
-    background-color: #218838;
+.cancelButton {
+    background-color: #FE5F55;
 }
 
 .designContainer {
-    margin-top: 2rem;
+    margin-top: 1rem;
 }
 
 .designChallenge {
+    display: flex;
     margin-top: 1rem;
-    padding: 1rem;
+    margin-bottom: 1rem;
+    padding: 0.25rem 1rem;
     border: 1px solid #e0e0e0;
     border-radius: 12px;
     background-color: #f9f9f9;
-    width: 60%;
     font-size: 0.9rem;
     color: #555;
 }
 
+.designText {
+    font-size: 0.9rem;
+    width: 65%;
+}
+
 .openChallenge {
+    display: flex;
+    align-items: center;
+    margin-left: 5rem;
+}
+
+.openChallenge a {
     padding: 0.75rem 1.5rem;
     background-color: #3d704e;
     color: white;
@@ -284,5 +304,86 @@
     font-size: 0.9rem;
     font-weight: 400;
     cursor: pointer;
-    transition: background-color 0.2s ease;
+    text-decoration: none;
+}
+
+.card {
+    background-color: #FBFBFB;
+    border-radius: 12px;
+    border: 1px solid #e5e5e5;
+    padding: 32px;
+}
+
+.cardContent {
+    display: flex;
+}
+
+.interviewerSection {
+    width: 26%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    margin-left: 2rem;
+}
+
+.meetingText {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 0px;
+}
+
+.interviewerName {
+    font-size: 16px;
+    font-weight: 500;
+    color: #000;
+    margin-top: 8px;
+}
+
+.detailsSection {
+    width: 26%;
+    padding-left: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.detailRow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.detailLabel {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+}
+
+.timeContainer {
+    display: flex;
+    flex-direction: column;
+}
+
+.timeRange {
+    font-size: 14px;
+    color: #666;
+    margin-top: 4px;
+}
+
+.buttonContainer {
+    padding-left: 5rem;
+    display: flex;
+    align-items: center;
+}
+
+.addToCalendar {
+    background-color: #000;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
 }

@@ -19,6 +19,7 @@ export interface Event {
   room: string;
   interviewers: { name: string; role?: string }[];
   color?: string;
+  isCanceled?: boolean;
 }
 
 // Define subteam abbreviations (max 4 letters)
@@ -95,7 +96,7 @@ const EventDetails: React.FC<EventDetailsProps> = ({ event, popupPosition, onClo
       }}
     >
       <div className={styles.eventDetailsContent}>
-        <h3>Summary</h3>
+        <h3>{event.isCanceled ? "Canceled Interview" : "Summary"}</h3>
         <div className={styles.detailItem}>
           <div className={`${styles.detailBullet} ${styles.green}`}></div>
           <div className={styles.detailText}>
@@ -112,25 +113,29 @@ const EventDetails: React.FC<EventDetailsProps> = ({ event, popupPosition, onClo
           <Image src={Location.src} className={styles.detailIcon} alt="Location" height={15} width={15} />
           <div className={styles.detailText}>{event.room || "No room"}</div>
         </div>
-        <div className={styles.detailItem}>
-          <Image src={Interviewers.src} className={styles.detailIcon} alt="Interviewers" height={15} width={15} />
-          <div className={styles.detailText}>
-            <div>Interviewers</div>
-            <div className={styles.subtitle}>{event.interviewers.length} people</div>
-            {event.interviewers.map((interviewer, index) => (
-              <div key={index} className={styles.interviewer}>
-                <div
-                  className={`${styles.interviewerDot} ${index === 0 ? styles.blue : styles.brown
-                    }`}
-                ></div>
-                <div className={styles.subtitle}>{interviewer.name}</div>
+        {!event.isCanceled && (
+          <>
+            <div className={styles.detailItem}>
+              <Image src={Interviewers.src} className={styles.detailIcon} alt="Interviewers" height={15} width={15} />
+              <div className={styles.detailText}>
+                <div>Interviewers</div>
+                <div className={styles.subtitle}>{event.interviewers.length} people</div>
+                {event.interviewers.map((interviewer, index) => (
+                  <div key={index} className={styles.interviewer}>
+                    <div
+                      className={`${styles.interviewerDot} ${index === 0 ? styles.blue : styles.brown
+                        }`}
+                    ></div>
+                    <div className={styles.subtitle}>{interviewer.name}</div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
-        <button className={styles.attendButton} onClick={onAttend}>
-          Attend
-        </button>
+            </div>
+            <button className={styles.attendButton} onClick={onAttend}>
+              Attend
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
@@ -152,10 +157,11 @@ const Calendar: React.FC = () => {
   const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 });
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { interviews, fetchInterviews, isLoading } = useInterviews();
+  const { activeInterviews, canceledInterviews, fetchInterviews, isLoading } = useInterviews();
   const [currentTime, setCurrentTime] = useState(new Date());
   const popupRef = useRef<HTMLDivElement>(null);
   const [fullTeam, setFullTeam] = useState(false);
+  const [showCanceled, setShowCanceled] = useState(false);
 
   // Valid week range
   const validStartDate = new Date("2025-03-13");
@@ -238,7 +244,20 @@ const Calendar: React.FC = () => {
     setSelectedEvent(null);
   };
 
-  const filteredEvents = interviews.filter((event: Event) => {
+  const activeEvents = activeInterviews.map(interview => ({
+    ...interview,
+    isCanceled: false
+  }));
+
+  const canceledEvents = canceledInterviews.map(interview => ({
+    ...interview,
+    isCanceled: true,
+    interviewers: [],
+  }));
+
+  const events = [...activeEvents, ...(showCanceled ? canceledEvents : [])];
+
+  const filteredEvents = events.filter((event: Event) => {
     const eventDate = new Date(event.date);
     return weekDates.some(
       (date) =>
@@ -334,6 +353,12 @@ const Calendar: React.FC = () => {
           >
             {fullTeam ? "Full Team: ON" : "Full Team: OFF"}
           </button>
+          <button
+            className={`${styles.canceledInterviewsButton} ${showCanceled ? styles.canceledInterviewsButtonActive : ""}`}
+            onClick={() => setShowCanceled(!showCanceled)}
+          >
+            {showCanceled ? "Show Canceled: ON" : "Show Canceled: OFF"}
+          </button>
         </div>
       </div>
       <div className={styles.calendarWrapper}>
@@ -373,7 +398,11 @@ const Calendar: React.FC = () => {
                         .map((event, eventIndex) => {
                           let bgColor = "#e1f5fe";
                           let borderColor = "#4fc3f7";
-                          if (event.color === "red") {
+
+                          if (event.isCanceled) {
+                            bgColor = "#ffebee";
+                            borderColor = "#ef5350";
+                          } else if (event.color === "red") {
                             bgColor = "#ffebee";
                             borderColor = "#ef9a9a";
                           } else if (event.color === "purple") {

@@ -60,7 +60,8 @@
     color: #006644;
 }
 
-.teamButton {
+.teamButton,
+.canceledInterviewsButton {
     font-family: 'Montserrat', sans-serif;
     background-color: transparent;
     border: 2px solid #006644;
@@ -80,6 +81,21 @@
 
 .teamButtonActive {
     background-color: #006644;
+    color: #fff;
+}
+
+.canceledInterviewsButton {
+    border: 2px solid red;
+    color: red;
+}
+
+.canceledInterviewsButton:hover {
+    background-color: red;
+    color: #fff;
+}
+
+.canceledInterviewsButtonActive {
+    background-color: red;
     color: #fff;
 }
 

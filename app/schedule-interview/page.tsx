@@ -4,11 +4,15 @@ import styles from './ScheduleInterview.module.css';
 import ApplicationSidebar from '../../components/schedule-interview/ScheduleInterviewSidebar';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { SUBTEAM_DESIGN_CHALLENGES } from '@/constants/questions';
+import { useInterviews } from '@/hooks/useInterviews';
+import Clock from "@/public/icons/clock.svg";
+import Interviewers from "@/public/icons/interviewers.svg";
+import Location from "@/public/icons/location.svg";
+import Image from 'next/image';
 import { DetailedApplicantWithResponses } from '@/types';
 import { useApplicantDetails } from '@/hooks/useApplicantDetails';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import Link from 'next/link';
-import { SUBTEAM_DESIGN_CHALLENGES } from '@/constants/questions';
 
 const ScheduleInterview = () => {
     const [activeStep, setActiveStep] = useState(0);
@@ -18,6 +22,10 @@ const ScheduleInterview = () => {
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
     const [selectedTime, setSelectedTime] = useState<string | null>(null);
     const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
+    const [isCancelationModalOpen, setIsCancelationModalOpen] = useState(false);
+
+    const [hasInterview, setHasInterview] = useState(false);
+    const [interviewers, setInterviewers] = useState<string[] | null>(null);
 
     const dates = [
         { day: "Mon", date: "11", slots: 7, available: true },
@@ -34,30 +42,40 @@ const ScheduleInterview = () => {
     const { data: session, status } = useSession();
     const router = useRouter();
 
-    const {
-        data: applicant,
-        isLoading,
-        error,
-        refetchApplicant
-    } = useApplicantDetails(session?.user?.email ?? '');
+    const { activeInterviews, fetchInterviews, isLoading: isInterviewLoading } = useInterviews();
+    const applicantInterview = activeInterviews.find(
+        (interview) => interview.applicantId === session?.user?.id
+    );
+
+    // controls whether the applicant views the interview details
+    const publishInterview = true;
+
+    useEffect(() => {
+        setInterviewers(applicantInterview?.interviewers.map((i) => i.name));
+    }, [applicantInterview]);
+
+    useEffect(() => {
+        if (publishInterview && interviewers && interviewers.length > 0) {
+            setHasInterview(true);
+        }
+    }, [interviewers, publishInterview])
+
+    const { data: applicant, isLoading: isApplicantLoading } = useApplicantDetails(session?.user?.email ?? '');
     const applicantWithResponses = applicant as DetailedApplicantWithResponses;
 
     useEffect(() => {
-        if (status !== 'loading' && !session || session?.user?.admin) {
+        if (status !== 'loading' && !session || session?.user?.admin || session && session.user.status !== 'INTERVIEWING') {
             router.push('/');
         }
         if (session && session.user.status === 'APPLIED') {
             router.push('/application/submitted');
         }
-        if (session && session.user.status !== 'INTERVIEWING') {
-            router.push('/');
-        }
-        if (applicantWithResponses?.interviews) {
+        if (applicantInterview) {
             setActiveStep(1);
         }
-    }, [session, status, router, applicantWithResponses]);
+    }, [session, status, router, applicantInterview]);
 
-    if (status === 'loading') {
+    if (status === 'loading' || isInterviewLoading || isApplicantLoading) {
         return <p>Loading...</p>;
     }
 
@@ -65,23 +83,7 @@ const ScheduleInterview = () => {
         return null;
     }
 
-    if (isLoading) {
-        return (
-            <div className={styles.container}>
-                <div className={styles.loadingState}>Loading applicant details...</div>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className={styles.container}>
-                <div className={styles.errorState}>Error loading applicant details</div>
-            </div>
-        );
-    }
-
-    const subteam = applicantWithResponses?.selectedSubteam;
+    const subteam = applicantWithResponses.selectedSubteam;
     const designChallengeLink = SUBTEAM_DESIGN_CHALLENGES[subteam.toLowerCase()];
 
     const handleNext = () => {
@@ -128,7 +130,7 @@ const ScheduleInterview = () => {
 
             if (response.ok) {
                 handleNext();
-                refetchApplicant();
+                fetchInterviews();
             } else {
                 console.error("Form submission failed");
             }
@@ -136,6 +138,33 @@ const ScheduleInterview = () => {
             console.error("Error submitting form:", error);
         } finally {
             setIsSubmitting(false);
+        }
+    };
+
+    const handleCancelInterview = async () => {
+        setIsCancelationModalOpen(true);
+    }
+
+    const interviewCancelation = async () => {
+        setIsCancelationModalOpen(false);
+
+        try {
+            const applicantId = session.user.id;
+
+            const response = await fetch('/api/interviews/cancel', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ applicantId }),
+            });
+
+            if (response.ok) {
+                fetchInterviews();
+                window.location.reload();
+            } else {
+                console.error("Interview cancelation failed");
+            }
+        } catch (error) {
+            console.error("Error canceling interview:", error);
         }
     };
 
@@ -192,9 +221,7 @@ const ScheduleInterview = () => {
                                 <h4>No matching availability?</h4>
                                 Click the button below to flag your profile and provide some times that work for
                                 you. We will reach out to you personally to schedule an interview. {" "}
-                                <u>
-                                    Only do this if you absolutely cannot make any available time slots work.
-                                </u>
+                                <u> Only do this if you absolutely cannot make any available time slots work. </u>
                                 {" "} Otherwise, select a time slot from above and submit your availability.
                             </div>
                             <button className={styles.flagButton}>Flag Account</button>
@@ -204,28 +231,73 @@ const ScheduleInterview = () => {
             case 1:
                 return (
                     <div className={styles.contentContainer}>
-                        <h2 className={styles.heading}>Room assignment</h2>
-                        <p className={styles.subteam}>
-                            We&apos;ve received your preferred time! Please sit tight while we assign you to a room
-                            for an interview. This process can take anywhere from a couple hours to several days.
-                            Continue monitoring your inbox for an update and check back here for confirmation. If
-                            you have any concerns, reach out to your contact or email tamuformulae@gmail.com. While
-                            you wait, complete the design challenge below. Thank you!
-                        </p>
+                        {!hasInterview ? (
+                            <div className={styles.roomAssignment}>
+                                <h2 className={styles.heading}>Room assignment</h2>
+                                <p className={styles.subteam}>
+                                    We&apos;ve received your preferred time! Please sit tight while we assign you to a room
+                                    for an interview. This process can take anywhere from a couple hours to several days.
+                                    Continue monitoring your inbox for an update and check back here for confirmation. If
+                                    you have any concerns, reach out to your contact or email tamuformulae@gmail.com. While
+                                    you wait, complete the design challenge below. Thank you!
+                                </p>
+                            </div>
+                        ) : (
+                            <div>
+                                <h2 className={styles.heading}>Interview Confirmation</h2>
+                                <p className={styles.subteam}> Your time and location is confirmed - see you there! </p>
+                                <div className={styles.card}>
+                                    <div className={styles.cardContent}>
+                                        <div className={styles.interviewerSection}>
+                                            <p className={styles.meetingText}>You are meeting with</p>
+                                            <p className={styles.interviewerName}>{interviewers?.at(0)}</p>
+                                        </div>
+
+                                        <div className={styles.detailsSection}>
+                                            <div className={styles.detailRow}>
+                                                <Image src={Clock.src} alt="Clock" height={20} width={20} />
+                                                <div className={styles.timeContainer}>
+                                                    <span className={styles.detailLabel}>Wednesday, April 14th</span>
+                                                    <span className={styles.timeRange}>10:00 AM - 10:30 AM</span>
+                                                </div>
+                                            </div>
+
+                                            <div className={styles.detailRow}>
+                                                <Image src={Location.src} alt="Location" height={20} width={20} />
+                                                <span className={styles.detailLabel}>ZACH 282N</span>
+                                            </div>
+
+                                            <div className={styles.detailRow}>
+                                                <Image src={Interviewers.src} alt="Interviewers" height={20} width={20} />
+                                                <span className={styles.detailLabel}>Software Subteam</span>
+                                            </div>
+                                        </div>
+
+                                        <div className={styles.buttonContainer}>
+                                            <button className={styles.addToCalendar}>Add to Google Calendar</button>
+                                        </div>
+                                    </div>
+
+
+                                </div>
+                            </div>
+                        )}
 
                         <div className={styles.designContainer}>
                             <h2 className={styles.heading}>Design Challenge</h2>
                             <p className={styles.subteam}>{subteam}</p>
-                            <p className={styles.designChallenge}>
-                                As part of your interview process, you are asked to complete this design challenge.
-                                You will be asked about your solution at your interview, so make sure to bring it
-                                there. You do not need to submit this anywhere.
-                            </p>
-                            <Link href={designChallengeLink}>
-                                <button className={styles.openChallenge}>
-                                    Open Challenge
-                                </button>
-                            </Link>
+                            <div className={styles.designChallenge}>
+                                <p className={styles.designText}>
+                                    As part of your interview process, you are asked to complete this design challenge.
+                                    You will be asked about your solution at your interview, so make sure to bring it
+                                    there. You do not need to submit this anywhere.
+                                </p>
+                                <div className={styles.openChallenge}>
+                                    <a href={designChallengeLink}>
+                                        Open Challenge
+                                    </a>
+                                </div>
+                            </div>
                         </div>
 
                         <div className={styles.cancelInterview}>
@@ -234,10 +306,8 @@ const ScheduleInterview = () => {
                                 Click the button below to cancel your interview for any reason, no questions asked.
                                 If you need to reschedule, contact our team directly either by reaching out to your
                                 contact or emailing tamuformulae@gmail.com. {" "}
-                                <u> Only do this if you absolutely cannot make any available time slots work. </u>
-                                {" "} Otherwise, select a time slot from above and submit your availability.
                             </div>
-                            <button className={styles.cancelInterviewButton}>Cancel Interview</button>
+                            <button className={styles.cancelInterviewButton} onClick={handleCancelInterview}>Cancel Interview</button>
                         </div>
                     </div>
                 );
@@ -302,6 +372,34 @@ const ScheduleInterview = () => {
                                 className={styles.confirmButton}
                             >
                                 Yes, Submit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {isCancelationModalOpen && (
+                <div className={styles.modalOverlay}>
+                    <div className={styles.modal}>
+                        <h2 className={styles.modalTitle}>Cancel Interview Timing</h2>
+                        <p className={styles.modalText}>
+                            You have selected {" "}
+                            <b>March {`${selectedDate} at ${selectedTime}`} for your interview.</b>.
+                            Once canceled, any rescheduling must be done through by emailing {" "}
+                            <i>tamuformulae@gmail.com.</i> Are you sure you want to proceed?
+                        </p>
+                        <div className={styles.modalButtons}>
+                            <button
+                                onClick={() => setIsCancelationModalOpen(false)}
+                                className={styles.cancelModalButton}
+                            >
+                                No
+                            </button>
+                            <button
+                                onClick={interviewCancelation}
+                                className={styles.cancelButton}
+                            >
+                                Yes, cancel
                             </button>
                         </div>
                     </div>
